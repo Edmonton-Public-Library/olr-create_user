@@ -32,20 +32,23 @@ VERSION="0.1"
 ### print it to STDOUT and then exits.
 ### Source of the next user ID number.
 ### '21221900000007'
-export NEXT_ID_FILE=./nextcustomerid
+### All calls must have explicit exit code to trigger the node.js exec.on('exit', function(code)) to run.
+export NEXT_ID_FILE=/home/ilsadmin/create_user/scripts/nextcustomerid
 if [ -s "$NEXT_ID_FILE" ]; then
 	# read the next id file, and save that value for printing to STDOUT.
-	current_id=$(cat "$NEXT_ID_FILE" | pipe.pl -L-1 -tc0 -nc0)
+	current_id=$(cat "$NEXT_ID_FILE" | pipe.pl -L-1 -tc0 -nc0 -H)
 	# Take the current ID and use pipe.pl to increment the value.
 	next_id=$(echo "$current_id" | pipe.pl -1c0)
 	# If that failed then echo a message to STDERR and echo '-1' to STDOUT.
 	if [[ -z "${next_id// }" ]]; then
 		echo "** error, could not find $NEXT_ID_FILE **" >&2
 		echo "-1"
+		exit 1  # Failed to read nextcustomerid file.
 	else # write the next ID to the nextcustomerid clobbering the existing file.
-		echo "$next_id" > $NEXT_ID_FILE
+		echo $next_id > $NEXT_ID_FILE
 		# Echo the final value to STDERR.
 		echo $current_id
+		exit 0 # Success
 	fi
 else
 	# report that the nextcustomerid file couldn't be found and the ILS admin 
@@ -53,5 +56,6 @@ else
 	# and put that in a file called '$NEXT_ID_FILE'. See above.
 	echo "** error, could not find $NEXT_ID_FILE **" >&2
 	echo "-1"
+	exit 2 # nextcustomerid file missing or empty.
 fi
 # EOF
