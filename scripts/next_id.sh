@@ -46,7 +46,6 @@ if [ -s "$NEXT_ID_FILE" ]; then
 		exit 1  # Failed to read nextcustomerid file.
 	else # write the next ID to the nextcustomerid clobbering the existing file.
 		echo $next_id > $NEXT_ID_FILE
-		# Echo the final value to STDERR.
 		echo $current_id
 		exit 0 # Success
 	fi
