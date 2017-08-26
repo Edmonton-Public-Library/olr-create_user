@@ -24,6 +24,7 @@
 # Author:  Andrew Nisbet, Edmonton Public Library
 # Copyright (c) Thu Feb 23 16:22:30 MST 2017
 # Rev: 
+#          0.1 - Dev. 
 #          0.0 - Dev. 
 #
 ##############################################################################
@@ -38,17 +39,24 @@ WORK_DIR=/home/ilsadmin/create_user
 PY_CONVERTER=$WORK_DIR/scripts/create_user.py
 JSON_USERS=$WORK_DIR/incoming/user.data
 FLAT_USERS=$WORK_DIR/incoming/user$DATE_NOW.$$.flat
-SSH_SERVER="sirsi@edpl-t.library.ualberta.ca"  # Test server is default ILS to write to.
-USER="ADMIN|PCGUI-DISP"
+ERROR=$WORK_DIR/loaduser.log
+TEST_ILS="sirsi@edpl-t.library.ualberta.ca"  # Test server is default ILS to write to.
+PROD_ILS="sirsi@eplapp.library.ualberta.ca"  # Production server is default ILS to write to.
+SERVER="$TEST_ILS"                           # Default to test server for customer loading.
 LIBRARY="EPLMNA"
 TMP_DIR="/tmp"
+# SCRATCH=$TMP_DIR/create_user$$.out
+SCRATCH=$WORK_DIR/create_user$$.out
+API_SWITCHES="-aU -bU -mc"     # Create user.
+USER="ADMIN|PCGUI-DISP"        # Load user for Symphony logging, site specific
 VERSION="0.1"
 
 
 if  [ ! -s "$PY_CONVERTER" ]
 then
 	printf "** error: can't find associated python conversion script '%s'.\n" $PY_CONVERTER >&2
-	exit 99
+	echo "internal server error, resource not available."
+	exit -1
 fi
 
 ###############
@@ -57,150 +65,71 @@ fi
 # return: none
 usage()
 {
-	printf "Usage: %s [-option]\n" "$0" >&2
+	printf "Usage: %s [JSON file]\n" "$0" >&2
 	printf " Converts customer accounts from JSON to flat and loads them.\n" >&2
-	printf " Order of options matter. For example if you want to write to Test ILS\n" >&2
-	printf " you need to run with '-t' as the first option. Example: $0 -t [-other_options].\n" >&2
-	printf "   -j<json_file> - Converts file from JSON to flat.\n" >&2
-	printf "   -l<flat_file> - Loads the flat file to \$SSH_SERVER (currently $SSH_SERVER).\n" >&2
-	printf "   -L<json_file> - Like '-l', but does both conversion from JSON then loads flat.\n" >&2
-	printf "   -p - Write users to Production ILS server not Test ILS.\n" >&2
-	printf "   Version: %s\n" $VERSION >&2
-	exit 1
+	printf " Version: %s\n" $VERSION >&2
+	echo "internal server error."
+	exit -1
 }
 
-# Tests if a user exists in the ILS.
-# param:  flat file of user information. File must exist prior to calling.
-# return: 1 if the user has an account with that user id, and 0 if they don't.
-user_not_exist()
-{
-	local flat="$1"
-	local user_id=$(grep USER_ID "$flat" | awk 'NF>1{print $NF}' | sed -e 's/^..//')
-	# If we failed to grab the user id, then return 1, which means they exist, the
-	# caller will likely try to update the account which will fail if it doesn't exist
-	# which in this case is what we want.
-	if [ -z "$user_id" ]; then
-		printf "** error couldn't read the user's id from the file '%s'\n" "$flat" >&2
-		return 2
-	fi
-	local tmp_file="$TMP_DIR/tmp.$$"
-	# sshpass -p"YOUR PASSWORD" ssh -t -t "$SSH_SERVER" << EOSSH >$tmp_file
-	ssh -t -t "$SSH_SERVER" << EOSSH >$tmp_file
-echo "$user_id" | seluser -iB
+[[ -z "$1" ]] && usage
+if [ -s "$1" ]; then
+	JSON_USERS=$1
+	/usr/bin/python3.5 $PY_CONVERTER -j $JSON_USERS >$FLAT_USERS
+	if [ -s "$FLAT_USERS" ]; then 
+		# Creates a user:
+		# Save customer ID for error log.
+		echo "loading users: " >>$ERROR
+		grep USER_ID "$FLAT_USERS" | awk 'NF>1{print $NF}' | sed -e 's/^..//' >>$ERROR
+		# API to use, default is to update if exists and create if not.
+		# Add a trailing '\' to each line - except the last - in this
+		# way we can echo all the flat data from one variable.
+		if [ "$ILS" == "REDHAT" ]; then
+			customer=$(cat "$1" | sed -e '$ ! s/$/\n\\/')    # Required at Shortgrass.
+		elif [ "$ILS" == "SOLARIS" ]; then
+			customer=$(cat "$1" | sed -e '$ ! s/$/\\/')      # Solaris at EPL.
+		else
+			customer=$(cat "$1" | sed -e '$ ! s/$/\n\\/')    # Default to modern unix.
+		fi
+		################# testing stops here.
+		exit 0
+		ssh -t "$SSH_SERVER" << EOSSH 2>>$SCRATCH
+echo "$customer" | loadflatuser $API_SWITCHES -n -y$LIBRARY -l"$USER" -d
 exit
 EOSSH
-	grep "error number 111" "$tmp_file" 2>&1 > /dev/null
-	local status=$?
-	rm "$tmp_file"
-	echo $status
-}
-
-# Loads customer data from file and executes it via SSH adding variables as
-# required.
-# param:  flat file of customer data.
-# return: 0 if everything went well and 1 otherwise.
-load_customer()
-{
-	if [ -z "$1" ]; then
-		printf "*** error empty file name argument.\n" >&2
-		return
-	fi
-	# TODO: Add check if this is a load or an update.
-	local user_test=$(user_not_exist "$1")
-	# API to use, default is to update. If there's a problem we just output file name.
-	# Will return the number of lines, characters and words in the flat on error.
-	local API="wc" 
-	if [ -z "$user_test" ]; then
-		printf "** error, caller didn't return. Is the process hung?\n" >&2
-		return 1
-	elif [ "$user_test" -eq 2 ]; then
-		printf "** error, failed to parse input file, is it a flat file?\n" >&2
-		return 1
-	elif [ "$user_test" -eq 1 ]; then
-		printf "user exists marking for update.\n" >&2
-		# Create the user.
-		API="loadflatuser -aR -bR -mu -n -y$LIBRARY"
-	elif [ "$user_test" -eq 0 ]; then
-		printf "loading user.\n" >&2
-		# Update customer
-		API="loadflatuser -aU -bU -mc -n -y$LIBRARY"
+		# TODO: test for success in $SCRATCH.
+		# cat "$FLAT_USERS" | ssh $SERVER 'cat - | loadflatuser -aU -bU -l"ADMIN|PCGUI-DISP" -mc -n -y"$LIBRARY" -d'
+		# For more sophisticated solutions see Metro loaduser.sh.
+		## Add a user.
+		# loadFlatUserCreate.add("loadflatuser");
+		# loadFlatUserCreate.add("-aU"); // Add base.
+		# loadFlatUserCreate.add("-bU"); // Add extended.
+		# loadFlatUserCreate.add("-l\"ADMIN|PCGUI-DISP\"");
+		# loadFlatUserCreate.add("-mc"); // Create
+		# loadFlatUserCreate.add("-n"); // Turn off BRS checking if -n is used.
+		# loadFlatUserCreate.add("-y\"" + homeLibrary + "\"");
+		## loadFlatUserCreate.add("-d"); // write syslog. check Unicorn/Logs/error for results.
+		# Update user command.
+		# loadFlatUserUpdate = new ArrayList<>();
+		# loadFlatUserUpdate.add("loadflatuser");
+		# loadFlatUserUpdate.add("-aR"); // replace base information
+		# loadFlatUserUpdate.add("-bR"); // Replace extended information
+		# loadFlatUserUpdate.add("-l\"ADMIN|PCGUI-DISP\""); // User and station.
+		# loadFlatUserUpdate.add("-mu"); // update
+		# loadFlatUserUpdate.add("-n"); // turn off BRS checking. // doesn't matter for EPL does matter for Shortgrass.
+		# loadFlatUserUpdate.add("-d"); // write syslog. check Unicorn/Logs/error for results.
+		echo "customer successfully loaded."
+		exit 0
 	else
-		printf "** error, can't determine if this is an update or create.\n" >&2
-		mv "$1" "$1.fail" # Save the file as a fail file for admin to check and load later.
-		return 1
+		echo "*** error failed to convert customer JSON data to flat format." >>$ERROR
+		echo "internal server error, conversion error."
+		exit -1
 	fi
-	# Add a trailing '\' to each line - except the last - in this way we can echo all the flat data from one variable.
-	local customer=$(cat "$1" | sed -e '$ ! s/$/\\/')
-	# sshpass -p"YOUR PASSWORD" ssh -t -t "$SSH_SERVER" << EOSSH >$tmp_file
-	ssh -t -t "$SSH_SERVER" << EOSSH
-echo "$customer" | $API -l"$USER"
-exit
-EOSSH
-}  # The output is interpreted by the caller (ME server).
+else
+	echo "*** error argument file entered on command line is either empty, or was not found." >>$ERROR
+	echo "internal server error, no input."
+	exit -1
+fi
 
-# Converts argument JSON file to flat file.
-# param:  JSON file.
-# return: 0 if conversion successful, and 1 otherwise.
-JSON_to_flat()
-{
-	[[ -z "$1" ]] && echo "**error, empty file passed as argument." >&2
-	if [ ! -s "$1" ]; then
-		printf "**error, argument file '%s' does not exist or is empty.\n" "$1" >&2
-		return 1
-	fi
-	return 0
-}
 
-# Loads the argument flat file into the ILS.
-# param:  fully qualified path to the flat file. 
-# return: 0 if successful and 1 otherwise.
-load_flat_file()
-{
-	flat_file=$1
-	if [ -s "$1" ]; then
-		result=$(load_customer "$flat_file")
-		if [ -z "$result" ]; then
-			printf "*** error occured while loading customer account.\n" >&2
-		else
-			printf "%s\n" "$result"
-			return 0
-		fi
-	else
-		printf "*** error argument entered is either empty, not a file, or the file was not found.\n" >&2
-	fi
-	return 1
-}
-
-############################## Taken from ME Libraries' loaduser.sh
-
-while getopts ":j:l:L:px" opt; do
-  case $opt in
-	j)	if [ ! JSON_to_flat "$OPTARG" ]; then
-			printf "JSON conversion failed. Check files and locations and try again.\n" >&2
-			exit 1
-		else
-			printf "JSON conversion completed successfully.\n" >&2
-			exit 0
-		fi
-		;;
-	l)  printf "-l selected, whith argument '%s'\n." "$OPTARG" >&2
-		;;
-	L)  printf "-L selected, but not implemented yet.\n" "$OPTARG" >&2
-		;;
-	p)  printf "-t selected, loading customers to Test ILS.\n" >&2
-		SSH_SERVER="sirsi@eplapp.library.ualberta.ca"  # Test system at EPL.
-		;;
-	x)	usage
-		exit 1
-		;;
-	\?)	printf "Invalid option: -$OPTARG \n" >&2
-		usage
-		exit 1
-		;;
-	:)	printf "Option -$OPTARG requires an argument.\n" >&2
-		usage
-		exit 1
-		;;
-  esac
-done
 # EOF

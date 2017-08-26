@@ -40,14 +40,88 @@ import json
 # param:  JSON data in the following format.
 # return: Flat Customer record.
 class Customer:
-    def __init__(self, json_data):
-        pass
-    def get_flat_customer(self):
-        pass
+    def __init__(self, data):
+        self.json = data
+        # JSON format:
+        # {
+        # 'USER_LAST_NAME': 'Crowley', 
+        # 'CITYONLY': 'Edmonton', 
+        # 'ADDRESS': {'STREET': '1503 Wellwood Way NW', 'POSTALCODE': 'T6M 2M3', 'CITY_STATE': 'Edmonton, AB'},
+        # 'USER_FIRST_NAME': 'Edward', 
+        # 'USER_PIN': 'mtj8528', 
+        # 'ADDRESSONLY': '1503 Wellwood Way NW', 
+        # 'EMAIL': 'jd@jdlien.com', 
+        # 'PHONE': '403-444-1258', 
+        # 'USER_CATEGORY2': 'M', 
+        # 'CARE_OF': 'Sylvia Crowley', 
+        # 'APARTMENTONLY': '', 
+        # 'PROVINCEONLY': 'AB', 
+        # 'USER_BIRTH_DATE': 20090918, 
+        # 'USER_AGE': 7
+        # }
+        # Convert the customer to flat format.
+        # *** DOCUMENT BOUNDARY ***
+        # FORM=LDUSER
+        # .USER_FIRST_NAME.   |aGxxx
+        # .USER_ACCESS.   |aPUBLIC
+        # .USER_STATUS.   |aOK
+        # .USER_CHG_HIST_RULE.   |aALLCHARGES
+        # .USER_ID.   |a21000008600999
+        # .USER_ROUTING_FLAG.   |aY
+        # .USER_CATEGORY5.   |aECONSENT
+        # .USER_ENVIRONMENT.   |aPUBLIC
+        # .USER_PREFERRED_NAME.   |aAXXXXX, GXXX
+        # .USER_PREF_LANG.   |aENGLISH
+        # .USER_PIN.   |a2913
+        # .USER_PROFILE.   |aEPL_METRO
+        # .USER_LAST_NAME.   |aAxxxxxx
+        # .USER_LIBRARY.   |aEPLMNA
+        # .USER_PRIV_EXPIRES.   |a20180719
+        # .USER_PRIV_GRANTED.   |a20170826
+        # .USER_ADDR1_BEGIN.
+        # .POSTALCODE.   |aH0H 0H0
+        # .PHONE.   |a403-nnn-nnnn
+        # .STREET.   |aRr 7 D
+        # .CITY/STATE.   |aPonoka, AB
+        # .EMAIL.   |axxxxxxxx@hotmail.com
+        # .USER_ADDR1_END.
+        self.expire = 'NEVER'
+        self.today = '20170826'
+        self.profile = 'Compute me'
+    def __repr__(self):
+        self.__str__()
+    def __str__(self):
+        flat_customer = ('*** DOCUMENT BOUNDARY ***\n'
+        'FORM=LDUSER\n'
+        '.USER_FIRST_NAME.   |a' + self.json['USER_FIRST_NAME'] + '\n'
+        '.USER_ACCESS.   |aPUBLIC\n'
+        '.USER_STATUS.   |aOK\n'
+        '.USER_CHG_HIST_RULE.   |aALLCHARGES\n'
+        # '.USER_ID.   |a' + self.json['USER_ID'] + '\n'
+        '.USER_ID.   |a' + '<test user id>' + '\n'
+        '.USER_ROUTING_FLAG.   |aY'
+        '.USER_CATEGORY5.   |aECONSENT\n'
+        '.USER_ENVIRONMENT.   |aPUBLIC\n'
+        '.USER_PREFERRED_NAME.   |a' + self.json['USER_LAST_NAME'].upper() + ', ' + self.json['USER_FIRST_NAME'].upper() + '\n'
+        '.USER_PREF_LANG.   |aENGLISH\n'
+        '.USER_PIN.   |a' + self.json['USER_PIN'] + '\n'
+        '.USER_PROFILE.   |a' + self.profile + '\n'
+        '.USER_LAST_NAME.   |a' + self.json['USER_LAST_NAME'] + '\n'
+        '.USER_LIBRARY.   |aEPLMNA\n'
+        '.USER_PRIV_EXPIRES.   |a' + self.expire + '\n'
+        '.USER_PRIV_GRANTED.   |a' + self.today + '\n'
+        '.USER_ADDR1_BEGIN.\n'
+        '.POSTALCODE.   |a' + self.json['ADDRESS']['POSTALCODE'] + '\n'
+        # '.PHONE.   |a' + self.json['ADDRESS']['PHONE'] + '\n'
+        '.STREET.   |a' + self.json['ADDRESS']['STREET'] + '\n'
+        '.CITY/STATE.   |a' + self.json['ADDRESS']['CITY_STATE'] + '\n'
+        '.EMAIL.   |a' + self.json['EMAIL'] + '\n'
+        '.USER_ADDR1_END.\n'
+        )
+        return flat_customer
 
 def usage():
     sys.stderr.write('usage: create_user.py [options] [file]\n');
-    sys.stderr.write(' -B<barcode> Required. Customer\'s barcode.\n');
     sys.stderr.write(' -j<json_file> Required. Customers\' required input json file.\n');
     sys.stderr.write(' -t Test mode.\n');
     sys.stderr.write(' -x This message.\n');
@@ -56,26 +130,19 @@ def usage():
 # Take valid command line arguments.
 def main(argv):
     customer_json_file = ''
-    customer_id = ''
     is_test = False
     try:
-        opts, args = getopt.getopt(argv, "B:j:tx", ['--barcode', '--json='])
+        opts, args = getopt.getopt(argv, "j:tx", ['--json='])
     except getopt.GetoptError:
         usage()
     for opt, arg in opts:
         if opt in ( "-j", "--json" ):   # Required and must exist.
             customer_json_file = arg
-        elif opt in ( "-B", "--barcode" ): # Required. 
-            customer_id = arg
         elif opt in "-t":
             is_test = True
         elif opt in "-x":
             usage()
     # Now simple test to see if user provided all the required data.
-    if not customer_id:
-        sys.stderr.write('** error, customer barcode is a required parameter and is missing from the command line.\n')
-        usage()
-        sys.exit(1) 
     if customer_json_file:
         json_data = Path(customer_json_file)
         if json_data.is_file():
@@ -87,17 +154,18 @@ def main(argv):
                     # Iterate over the array of customer data and pull out each customer.
                     json_customer_data = json.loads(line)
                     for customer_json in json_customer_data:
-                        sys.stderr.write('{0}\n'.format(customer_json))
-                        customer = Customer()
-                    
+                        # sys.stderr.write('{0}\n'.format(customer_json))
+                        customer = Customer(customer_json)
+                        sys.stderr.write('{0}'.format(customer))
+                        # sys.exit(0)
         else:
             sys.stderr.write('** error, JSON customer data file {0} missing.\n'.format(customer_json_file))
             usage()
-            sys.exit(1)
+            sys.exit(-1)
     else:
         sys.stderr.write('** error, JSON customer data file required.\n')
         usage()
-        sys.exit(1)
+        sys.exit(-1)
     
     # Done.
     sys.exit(0)
