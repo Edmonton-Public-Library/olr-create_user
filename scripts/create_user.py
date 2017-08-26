@@ -27,61 +27,78 @@
 #          0.0 - Dev. 
 #
 ##############################################################################
+from pathlib import Path
+import os
+import sys
+import getopt
+import json
 ## open the file and ensure it contains good user data create a formatted flat user file of all
 ## valid customers, then zero out the file to ensure we don't load same user data again.
 ## This script is expecting customer data in the form of:
-## 
+##
 # Takes customer data in JSON format and converts it to Symphony Flat format.
 # param:  JSON data in the following format.
 # return: Flat Customer record.
-class FlatCustomer:
-    def __init__(self, json_customer_data):
+class Customer:
+    def __init__(self, json_data):
         pass
     def get_flat_customer(self):
         pass
-        
-class CustomerLoader:
-    def __init__(self):
-        pass
-    def parse(self, customer_json_file): # Check for errors in the file.
-        pass
-    # Takes test value to not run against the ILS.
-    # return: True if the load was successful and false otherwise.
-    def load(self, is_test=True):
-        pass
-    # Zero's out the customer file so there are no repeat loads.
-    def zero_file(self, customer_json_file):
-        pass
-        
-# Take valid command line arguments -b, and -x.
+
+def usage():
+    sys.stderr.write('usage: create_user.py [options] [file]\n');
+    sys.stderr.write(' -B<barcode> Required. Customer\'s barcode.\n');
+    sys.stderr.write(' -j<json_file> Required. Customers\' required input json file.\n');
+    sys.stderr.write(' -t Test mode.\n');
+    sys.stderr.write(' -x This message.\n');
+    sys.exit(1)
+            
+# Take valid command line arguments.
 def main(argv):
     customer_json_file = ''
-    customer_flat_file = ''
+    customer_id = ''
     is_test = False
     try:
-        opts, args = getopt.getopt(argv, "b:o:tx", ['--bulk_add=', '--out_file='])
+        opts, args = getopt.getopt(argv, "B:j:tx", ['--barcode', '--json='])
     except getopt.GetoptError:
         usage()
     for opt, arg in opts:
-        if opt in ( "-b", "--bulk_add" ):   # must exist.
+        if opt in ( "-j", "--json" ):   # Required and must exist.
             customer_json_file = arg
-        elif opt in ( '-o', '--out_file' ): # Automatically clobbered.
-            customer_flat_file = arg
-        elif opt in ( 't' ):
-            sys.stderr.write('test mode enabled.\n')
+        elif opt in ( "-B", "--barcode" ): # Required. 
+            customer_id = arg
+        elif opt in "-t":
             is_test = True
         elif opt in "-x":
             usage()
     # Now simple test to see if user provided all the required data.
-    if customer_json_file && customer_flat_file:
-        print 'good to go.'
+    if not customer_id:
+        sys.stderr.write('** error, customer barcode is a required parameter and is missing from the command line.\n')
+        usage()
+        sys.exit(1) 
+    if customer_json_file:
+        json_data = Path(customer_json_file)
+        if json_data.is_file():
+            with open(customer_json_file) as json_file:
+                lines = json_file.readlines()
+                for line in lines:
+                    # [{"PHONE":"403-444-1258","USER_FIRST_NAME":"Sylvia","USER_BIRTH_DATE":19610519,"POSTALCODE":"T6M 2M3","CARE_OF":"","CITY_STATE":"Edmonton, AB","EMAIL":"jd@jdlien.com","STREET":"1503 Wellwood Way NW","USER_PIN":"gtk6358","USER_CATEGORY2":"F","USER_LAST_NAME":"Crowley"},{"USER_FIRST_NAME":"Crowley","CARE_OF":"Sylvia Crowley","CITY_STATE":"Edmonton, AB","STREET":"1503 Wellwood Way NW","USER_PIN":"yvy5167","USER_CATEGORY2":"M","PHONE":"403-444-1258","USER_BIRTH_DATE":20050103,"POSTALCODE":"T6M 2M3","CITYONLY":"Edmonton","APARTMENTONLY":"","EMAIL":"jd@jdlien.com","PROVINCEONLY":"AB","ADDRESSONLY":"1503 Wellwood Way NW"}]
+                    # The example shows one customer, but child accounts can be added to the JSON array.
+                    # Iterate over the array of customer data and pull out each customer.
+                    json_customer_data = json.loads(line)
+                    for customer_json in json_customer_data:
+                        sys.stderr.write('{0}\n'.format(customer_json))
+                        customer = Customer()
+                    
+        else:
+            sys.stderr.write('** error, JSON customer data file {0} missing.\n'.format(customer_json_file))
+            usage()
+            sys.exit(1)
     else:
-        sys.stderr.write('no output file name provided. An output file name is used by another process.\n');
+        sys.stderr.write('** error, JSON customer data file required.\n')
+        usage()
         sys.exit(1)
-    customer_loader = CustomerLoader()
-    customer_loader.parse(customer_json_file) # Check for errors in the file.
-    if customer_loader.load(is_test):
-        customer_loader.zero_file(customer_json_file)
+    
     # Done.
     sys.exit(0)
 
