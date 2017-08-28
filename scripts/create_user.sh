@@ -38,17 +38,16 @@ DATE_NOW=$(date +%Y%m%d)                       # Looks like: 20170728
 WORK_DIR=/home/ilsadmin/create_user
 PY_CONVERTER=$WORK_DIR/scripts/create_user.py
 JSON_USERS=$WORK_DIR/incoming/user.data
-# FLAT_USERS=$WORK_DIR/incoming/user$DATE_NOW.$$.flat
-FLAT_USERS=$WORK_DIR/incoming/user$DATE_NOW.flat
+# FLAT_USERS=$WORK_DIR/incoming/user$DATE_NOW.$$.flat # Production setting.
+FLAT_USERS=$WORK_DIR/incoming/user$DATE_NOW.flat      # Test setting.
 ERROR=$WORK_DIR/create_user.log
 TEST_ILS="sirsi@edpl-t.library.ualberta.ca"  # Test server is default ILS to write to.
 PROD_ILS="sirsi@eplapp.library.ualberta.ca"  # Production server is default ILS to write to.
 SERVER="$PROD_ILS"                           # Default to test server for customer loading.
 LIBRARY="EPLMNA"
 TMP_DIR="/tmp"
-# SCRATCH=$TMP_DIR/create_user$$.out
-SCRATCH=$WORK_DIR/scripts/create_user.out
-# SCRATCH=$WORK_DIR/create_user.out
+# SCRATCH=$TMP_DIR/create_user$$.out         # Production setting.
+SCRATCH=$WORK_DIR/scripts/create_user.out    # Test setting.
 API_SWITCHES="-aU -bU -mc"     # Create user.
 USER="ADMIN|PCGUI-DISP"        # Load user for Symphony logging, site specific
 VERSION="0.1"
@@ -121,10 +120,10 @@ if [ -s "$1" ]; then
 		printf "\$count_loaded='%s' compared with \$count_expected='%s'\n" $count_loaded $count_expected >&2
 		if [ "$count_loaded" == "$count_expected" ]; then
 			echo "customer successfully loaded."
-			# rm $SCRATCH
+			# rm $SCRATCH                  # Production setting.
 			# Don't reload the customer data if it all worked out. However we need to make sure all the customers
 			# requested are loaded. The service can accept multiple customers on input.
-			# rm $JSON_USERS $FLAT_USERS
+			# rm $JSON_USERS $FLAT_USERS   # Production setting.
 			exit 0
 		else
 			echo "one or more customer load requests failed."
