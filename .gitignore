@@ -1,3 +1,7 @@
 incoming/*
 scripts/nextcustomerid
 scripts/customer.data
+loaduser.log
+scripts/Makefile
+scripts/create_lost_user.sh
+scripts/loaduser.sh
