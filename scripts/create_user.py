@@ -87,7 +87,11 @@ class Customer:
         # .USER_ADDR1_END.
         self.expire = 'NEVER'
         self.today = '20170826'
-        self.profile = 'Compute me'
+        # Test for user age
+        if self.json['USER_AGE'] < 18:
+            self.profile = 'EPL_JUV'
+        else:
+            self.profile = 'EPL_ADULT'
     def __repr__(self):
         self.__str__()
     def __str__(self):
@@ -99,7 +103,7 @@ class Customer:
         '.USER_CHG_HIST_RULE.   |aALLCHARGES\n'
         # '.USER_ID.   |a' + self.json['USER_ID'] + '\n'
         '.USER_ID.   |a' + '<test user id>' + '\n'
-        '.USER_ROUTING_FLAG.   |aY'
+        '.USER_ROUTING_FLAG.   |aY\n'
         '.USER_CATEGORY5.   |aECONSENT\n'
         '.USER_ENVIRONMENT.   |aPUBLIC\n'
         '.USER_PREFERRED_NAME.   |a' + self.json['USER_LAST_NAME'].upper() + ', ' + self.json['USER_FIRST_NAME'].upper() + '\n'
@@ -157,6 +161,7 @@ def main(argv):
                         # sys.stderr.write('{0}\n'.format(customer_json))
                         customer = Customer(customer_json)
                         sys.stderr.write('{0}'.format(customer))
+                        sys.stdout.write('{0}'.format(customer))
                         # sys.exit(0)
         else:
             sys.stderr.write('** error, JSON customer data file {0} missing.\n'.format(customer_json_file))
