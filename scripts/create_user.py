@@ -116,7 +116,7 @@ class Customer:
         '.USER_PRIV_GRANTED.   |a' + self.today + '\n'
         '.USER_ADDR1_BEGIN.\n'
         '.POSTALCODE.   |a' + self.json['ADDRESS']['POSTALCODE'] + '\n'
-        # '.PHONE.   |a' + self.json['ADDRESS']['PHONE'] + '\n'
+        '.PHONE.   |a' + self.json['PHONE'] + '\n'
         '.STREET.   |a' + self.json['ADDRESS']['STREET'] + '\n'
         '.CITY/STATE.   |a' + self.json['ADDRESS']['CITY_STATE'] + '\n'
         '.EMAIL.   |a' + self.json['EMAIL'] + '\n'
