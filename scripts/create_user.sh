@@ -108,10 +108,10 @@ if [ -s "$1" ]; then
 		printf "\$count_loaded='%s' compared with \$count_expected='%s'\n" $count_loaded $count_expected >&2
 		if [ "$count_loaded" == "$count_expected" ]; then
 			echo "customer successfully loaded."
-			# rm $SCRATCH                  # Production setting.
+			rm $SCRATCH                  # Production setting.
 			# Don't reload the customer data if it all worked out. However we need to make sure all the customers
 			# requested are loaded. The service can accept multiple customers on input.
-			# rm $JSON_USERS $FLAT_USERS   # Production setting.
+			rm $JSON_USERS $FLAT_USERS   # Production setting.
 			exit 0
 		else
 			echo "one or more customer load requests failed."
