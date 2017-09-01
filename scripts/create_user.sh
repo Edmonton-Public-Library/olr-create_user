@@ -52,7 +52,6 @@ API_SWITCHES="-aU -bU -mc"     # Create user.
 USER="ADMIN|PCGUI-DISP"        # Load user for Symphony logging, site specific
 VERSION="0.1"
 
-
 if  [ ! -s "$PY_CONVERTER" ]
 then
 	printf "** error: can't find associated python conversion script '%s'.\n" $PY_CONVERTER >&2
@@ -76,7 +75,7 @@ usage()
 [[ -z "$1" ]] && usage
 if [ -s "$1" ]; then
 	JSON_USERS=$1
-	# /usr/bin/python3.5 $PY_CONVERTER -j $JSON_USERS >$FLAT_USERS
+	/usr/bin/python3.5 $PY_CONVERTER -j $JSON_USERS >$FLAT_USERS
 	if [ -s "$FLAT_USERS" ]; then 
 		# Creates a user:
 		# Save customer ID for error log.
@@ -84,17 +83,6 @@ if [ -s "$1" ]; then
 		# Record the ids of the customers that were loaded to the log.
 		grep USER_ID "$FLAT_USERS" | awk 'NF>1{print $NF}' | sed -e 's/^..//' >>$ERROR
 		count_expected=$(grep USER_ID "$FLAT_USERS" | awk 'NF>1{print $NF}' | sed -e 's/^..//' | wc -l)
-		# API to use, default is to update if exists and create if not.
-		# Add a trailing '\' to each line - except the last - in this
-		# way we can echo all the flat data from one variable.
-		if [ "$ILS" == "REDHAT" ]; then
-			customer=$(cat "$FLAT_USERS" | sed -e '$ ! s/$/\n\\/')    # Required at Shortgrass.
-		elif [ "$ILS" == "SOLARIS" ]; then
-			customer=$(cat "$FLAT_USERS" | sed -e '$ ! s/$/\\/')      # Solaris at EPL.
-		else
-			customer=$(cat "$FLAT_USERS" | sed -e '$ ! s/$/\n\\/')    # Default to modern unix.
-		fi
-		# With the $customer variable set to all the lines of the input flat file run the load user on the ILS.
 		# loadflatuser outputs the new user key to STDOUT if successful.
 		cat "$FLAT_USERS" | ssh "$SERVER" 'cat - | loadflatuser -aU -bU -l"ADMIN|PCGUI-DISP" -mc -n -y"EPLMNA" -d' >$SCRATCH
 		# For more sophisticated solutions see Metro loaduser.sh.
