@@ -23,12 +23,12 @@
 # Author:  Andrew Nisbet, Edmonton Public Library
 # Copyright (c) Thu Aug 24 14:05:32 MDT 2017
 # Rev: 
-#          0.2 - Reworked to avoid the use of dereferencing paths in variables. 
+#          0.2 - Reworked dereferencing paths in variables. 
 #          0.1 - Working version. 
 #          0.0 - Dev. 
 #
 ##############################################################################
-VERSION="0.1"
+VERSION="0.2"
 ### This script will read the last user ID, store the next value back in a file
 ### print it to STDOUT and then exits.
 ### Source of the next user ID number.
@@ -39,13 +39,14 @@ export PATH=$PATH:/usr/local/bin:/bin
 if [ -s "$NEXT_ID_FILE" ]; then
 	# Take the current ID and use pipe.pl to increment the value.
 	# If that failed then echo a message to STDERR and echo '-1' to STDOUT.
-	next_id=$(cat /home/ilsadmin/create_user/scripts/nextcustomerid | /usr/local/bin/pipe.pl -L1 -1c0)
+	# next_id=$(cat /home/ilsadmin/create_user/scripts/nextcustomerid | /usr/local/bin/pipe.pl -L1 -1c0)
+	next_id=$(cat ${NEXT_ID_FILE} | pipe.pl -L1 -1c0)
 	if [[ -z "${next_id// }" ]]; then
 		echo "** error, could not find $NEXT_ID_FILE **" >&2
 		echo "-1"
 		exit 1  # Failed to process contents of file into the next user ID.
 	else # write the next ID to the nextcustomerid clobbering the existing file.
-		echo $next_id > /home/ilsadmin/create_user/scripts/nextcustomerid
+		echo $next_id > ${NEXT_ID_FILE}
 		echo $next_id
 		exit 0 # Success
 	fi
