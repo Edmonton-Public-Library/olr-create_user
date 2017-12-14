@@ -24,6 +24,7 @@
 # Author:  Andrew Nisbet, Edmonton Public Library
 # Copyright (c) Thu Feb 23 16:22:30 MST 2017
 # Rev: 
+#          0.2 - Dereference path variable fix. 
 #          0.1 - Dev. 
 #          0.0 - Dev. 
 #
@@ -36,25 +37,25 @@
 ## and load via appropriate mechanism. See create_user.py for conversion functions.
 DATE_NOW=$(date +%Y%m%d)                       # Looks like: 20170728
 WORK_DIR=/home/ilsadmin/create_user
-PY_CONVERTER=$WORK_DIR/scripts/create_user.py
-JSON_USERS=$WORK_DIR/incoming/user.data
+PY_CONVERTER=${WORK_DIR}/scripts/create_user.py
+JSON_USERS=${WORK_DIR}/incoming/user.data
 # FLAT_USERS=$WORK_DIR/incoming/user$DATE_NOW.$$.flat # Production setting.
-FLAT_USERS=$WORK_DIR/incoming/user$DATE_NOW.flat      # Test setting.
-ERROR=$WORK_DIR/create_user.log
+FLAT_USERS=${WORK_DIR}/incoming/user$DATE_NOW.flat      # Test setting.
+ERROR=${WORK_DIR}/create_user.log
 TEST_ILS="sirsi@edpl-t.library.ualberta.ca"  # Test server is default ILS to write to.
 PROD_ILS="sirsi@eplapp.library.ualberta.ca"  # Production server is default ILS to write to.
 SERVER="$TEST_ILS"                           # Default to test server for customer loading.
 LIBRARY="EPLMNA"
 TMP_DIR="/tmp"
 # SCRATCH=$TMP_DIR/create_user$$.out         # Production setting.
-SCRATCH=$WORK_DIR/scripts/create_user.out    # Test setting.
+SCRATCH=${WORK_DIR}/scripts/create_user.out    # Test setting.
 API_SWITCHES="-aU -bU -mc"     # Create user.
 USER="ADMIN|PCGUI-DISP"        # Load user for Symphony logging, site specific
-VERSION="0.1"
+VERSION="0.2"
 
 if  [ ! -s "$PY_CONVERTER" ]
 then
-	printf "** error: can't find associated python conversion script '%s'.\n" $PY_CONVERTER >&2
+	echo "** error: can't find associated python conversion script '$PY_CONVERTER'."  >&2
 	echo "internal server error, resource not available."
 	exit -1
 fi
@@ -65,26 +66,26 @@ fi
 # return: none
 usage()
 {
-	printf "Usage: %s [JSON file]\n" "$0" >&2
-	printf " Converts customer accounts from JSON to flat and loads them.\n" >&2
-	printf " Version: %s\n" $VERSION >&2
+	echo "Usage: $0 [JSON file]" >&2
+	echo " Converts customer accounts from JSON to flat and loads them." >&2
+	echo " Version: $VERSION"  >&2
 	echo "internal server error. (no params)."
 	exit -1
 }
 
 [[ -z "$1" ]] && usage
 if [ -s "$1" ]; then
-	JSON_USERS=$1
-	/usr/bin/python3.5 $PY_CONVERTER -j $JSON_USERS >$FLAT_USERS
+	JSON_USERS=${1}
+	/usr/bin/python3.5 ${PY_CONVERTER} -j ${JSON_USERS} >${FLAT_USERS}
 	if [ -s "$FLAT_USERS" ]; then 
 		# Creates a user:
 		# Save customer ID for error log.
-		echo "loading users: " >>$ERROR
+		echo "loading users: " >>${ERROR}
 		# Record the ids of the customers that were loaded to the log.
-		grep USER_ID "$FLAT_USERS" | awk 'NF>1{print $NF}' | sed -e 's/^..//' >>$ERROR
-		count_expected=$(grep USER_ID "$FLAT_USERS" | awk 'NF>1{print $NF}' | sed -e 's/^..//' | wc -l)
+		grep USER_ID ${FLAT_USERS} | awk 'NF>1{print $NF}' | sed -e 's/^..//' >>${ERROR}
+		count_expected=$(grep USER_ID ${FLAT_USERS} | awk 'NF>1{print $NF}' | sed -e 's/^..//' | wc -l)
 		# loadflatuser outputs the new user key to STDOUT if successful.
-		cat "$FLAT_USERS" | ssh "$SERVER" 'cat - | loadflatuser -aU -bU -l"ADMIN|PCGUI-DISP" -mc -n -y"EPLMNA" -d' >$SCRATCH
+		cat ${FLAT_USERS} | ssh ${SERVER} 'cat - | loadflatuser -aU -bU -l"ADMIN|PCGUI-DISP" -mc -n -y"EPLMNA" -d' >${SCRATCH}
 		# For more sophisticated solutions see Metro loaduser.sh.
 		## Add a user.
 		# loadFlatUserCreate.add("loadflatuser");
@@ -104,26 +105,26 @@ if [ -s "$1" ]; then
 		# loadFlatUserUpdate.add("-mu"); // update
 		# loadFlatUserUpdate.add("-n"); // turn off BRS checking. // doesn't matter for EPL does matter for Shortgrass.
 		# loadFlatUserUpdate.add("-d"); // write syslog. check Unicorn/Logs/error for results.
-		count_loaded=$(cat "$SCRATCH" | pipe.pl -gc0:"\d+" | wc -l)
-		printf "\$count_loaded='%s' compared with \$count_expected='%s'\n" $count_loaded $count_expected >&2
+		count_loaded=$(cat ${SCRATCH} | wc -l | pipe.pl -tc0)
+		echo "\$count_loaded='$count_loaded' compared with \$count_expected='$count_expected'"  >&2
 		if [ "$count_loaded" == "$count_expected" ]; then
 			echo "customer successfully loaded."
-			rm $SCRATCH                  # Production setting.
+			# rm ${SCRATCH}                  # Production setting.
 			# Don't reload the customer data if it all worked out. However we need to make sure all the customers
 			# requested are loaded. The service can accept multiple customers on input.
-			rm $JSON_USERS $FLAT_USERS   # Production setting.
+			# rm ${JSON_USERS} ${FLAT_USERS}   # Production setting.
 			exit 0
 		else
 			echo "one or more customer load requests failed."
-			exit -2
+			exit -3
 		fi
 	else
-		echo "*** error failed to convert customer JSON data to flat format." >>$ERROR
+		echo "*** error failed to convert customer JSON data to flat format." >>${ERROR}
 		echo "internal server error, conversion error."
-		exit -1
+		exit -2
 	fi
 else
-	echo "*** error argument file entered on command line is either empty, or was not found." >>$ERROR
+	echo "*** error argument file entered on command line is either empty, or was not found." >>${ERROR}
 	echo "internal server error, no input."
 	exit -1
 fi
