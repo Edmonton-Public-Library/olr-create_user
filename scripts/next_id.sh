@@ -23,6 +23,7 @@
 # Author:  Andrew Nisbet, Edmonton Public Library
 # Copyright (c) Thu Aug 24 14:05:32 MDT 2017
 # Rev: 
+#          0.2 - Reworked to avoid the use of dereferencing paths in variables. 
 #          0.1 - Working version. 
 #          0.0 - Dev. 
 #
@@ -34,19 +35,18 @@ VERSION="0.1"
 ### '21221900000007'
 ### All calls must have explicit exit code to trigger the node.js exec.on('exit', function(code)) to run.
 export NEXT_ID_FILE=/home/ilsadmin/create_user/scripts/nextcustomerid
+export PATH=$PATH:/usr/local/bin:/bin
 if [ -s "$NEXT_ID_FILE" ]; then
-	# read the next id file, and save that value for printing to STDOUT.
-	current_id=$(cat "$NEXT_ID_FILE" | pipe.pl -L-1 -tc0 -nc0 -H)
 	# Take the current ID and use pipe.pl to increment the value.
-	next_id=$(echo "$current_id" | pipe.pl -1c0)
 	# If that failed then echo a message to STDERR and echo '-1' to STDOUT.
+	next_id=$(cat /home/ilsadmin/create_user/scripts/nextcustomerid | /usr/local/bin/pipe.pl -L1 -1c0)
 	if [[ -z "${next_id// }" ]]; then
 		echo "** error, could not find $NEXT_ID_FILE **" >&2
 		echo "-1"
-		exit 1  # Failed to read nextcustomerid file.
+		exit 1  # Failed to process contents of file into the next user ID.
 	else # write the next ID to the nextcustomerid clobbering the existing file.
-		echo $next_id > $NEXT_ID_FILE
-		echo $current_id
+		echo $next_id > /home/ilsadmin/create_user/scripts/nextcustomerid
+		echo $next_id
 		exit 0 # Success
 	fi
 else
@@ -54,7 +54,7 @@ else
 	# needs to find the last highest customer ID with the prefix '$CARD_PREFIX'
 	# and put that in a file called '$NEXT_ID_FILE'. See above.
 	echo "** error, could not find $NEXT_ID_FILE **" >&2
-	echo "-1"
+	echo "-2"
 	exit 2 # nextcustomerid file missing or empty.
 fi
 # EOF
