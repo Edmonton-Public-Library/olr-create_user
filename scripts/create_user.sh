@@ -72,7 +72,7 @@ if [ -s "$1" ]; then
 	JSON_USERS=${1}
 	/usr/bin/python3.5 ${PY_CONVERTER} -j ${JSON_USERS} >${JSON_TO_FLAT_USER} # 2>>${ERROR}
 	if [ -s "$JSON_TO_FLAT_USER" ]; then 
-		# move converted user to incoming directory for loading.
+		# move converted user to incoming directory for loading on ILS.
 		scp ${JSON_TO_FLAT_USER} sirsi\@edpl-t.library.ualberta.ca:/s/sirsi/Unicorn/EPLwork/cronjobscripts/OnlineRegistration/Incoming
 	else
 		echo "*** error failed to convert customer JSON data to FLAT format." >>${ERROR}
