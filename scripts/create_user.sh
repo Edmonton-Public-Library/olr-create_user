@@ -24,6 +24,7 @@
 # Author:  Andrew Nisbet, Edmonton Public Library
 # Copyright (c) Thu Feb 23 16:22:30 MST 2017
 # Rev: 
+#          0.5 - Self-standing service conversion. 
 #          0.4 - Fix ssh load. 
 #          0.3 - Fixing stuff so the script can run it. 
 #          0.2 - Dereference path variable fix. 
@@ -39,13 +40,12 @@
 ## The Node.js server will serialize data of users to be created into a file. 
 ## Find this script and convert to flat user (web service-usable format),
 ## and load via appropriate mechanism. See create_user.py for conversion functions.
-DATE_NOW=$(date +%Y%m%d%H%M%S)  # Looks like: 20171214164754
+DATE_NOW=$(date '+%Y%m%d%H%M%S')  # Looks like: 20171214164754
 WORK_DIR=/home/ilsadmin/create_user
-PY_CONVERTER=${WORK_DIR}/scripts/create_user.py
-JSON_TO_FLAT_USER=${WORK_DIR}/incoming/user.$$.flat
-ERROR=${WORK_DIR}/create_user.$$.err
-CHECK=${WORK_DIR}/create_user.$$.out    # Test setting.
-VERSION="0.3"
+PY_CONVERTER=$WORK_DIR/scripts/create_user.py
+JSON_TO_FLAT_USER=$WORK_DIR/incoming/user.$$.flat
+LOG=$WORK_DIR/create_user.log
+VERSION="0.5"
 
 if  [ ! -s "$PY_CONVERTER" ]
 then
@@ -54,35 +54,30 @@ then
 	exit -1
 fi
 
-###############
-# Display usage message.
-# param:  none
-# return: none
-usage()
-{
-	echo "Usage: $0 [JSON file]" >&2
-	echo " Converts customer accounts from JSON to FLAT and loads them." >&2
-	echo " Version: $VERSION"  >&2
-	exit 1
-}
-
-[[ -z "$1" ]] && usage
-if [ -s "$1" ]; then
-	JSON_USERS=${1}
-	/usr/bin/python3.5 ${PY_CONVERTER} -j ${JSON_USERS} >${JSON_TO_FLAT_USER} # 2>>${ERROR}
-	if [ -s "$JSON_TO_FLAT_USER" ]; then 
-		# move converted user to incoming directory for loading on ILS.
-		scp ${JSON_TO_FLAT_USER} sirsi\@edpl-t.library.ualberta.ca:/s/sirsi/Unicorn/EPLwork/cronjobscripts/OnlineRegistration/Incoming
-		mv ${JSON_TO_FLAT_USER} ${JSON_TO_FLAT_USER}.out
+while true; do
+	if ls $WORK_DIR/*.block 2>/dev/null; then
+		sleep 5
 	else
-		echo "*** error failed to convert customer JSON data to FLAT format." >>${ERROR}
-		echo "internal server error, conversion error."
-		exit 2
+		for json_file in $(ls $WORK_DIR/incoming/*.data); do
+			/usr/bin/python3.5 $PY_CONVERTER -j $json_file 2>>$LOG >>$JSON_TO_FLAT_USER 
+			if [ -s "$JSON_TO_FLAT_USER" ]; then 
+				rm $json_file
+			else
+				echo "** error converting $json_file to $JSON_TO_FLAT_USER" >>$LOG
+			fi
+		done
+		# Now if there are any flat files create now or in the past, scp them over.
+		for flat_file in $(ls $WORK_DIR/incoming/*.flat); do
+			# move converted user to incoming directory for loading on ILS.
+			if scp $flat_file sirsi\@edpl-t.library.ualberta.ca:/s/sirsi/Unicorn/EPLwork/cronjobscripts/OnlineRegistration/Incoming
+			then
+				rm $flat_file
+			else
+				echo "** error scp $flat_file" >>$LOG
+			fi
+		done
+		sleep 30
 	fi
-else
-	echo "*** error argument file entered on command line is either empty, or was not found." >>${ERROR}
-	echo "internal server error, no input."
-	exit 1
-fi
+done
 exit 0
 # EOF
