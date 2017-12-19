@@ -42,8 +42,7 @@
 DATE_NOW=$(date +%Y%m%d%H%M%S)  # Looks like: 20171214164754
 WORK_DIR=/home/ilsadmin/create_user
 PY_CONVERTER=${WORK_DIR}/scripts/create_user.py
-JSON_TO_FLAT_USER=${WORK_DIR}/user.$$.flat
-LOAD_DIR=${WORK_DIR}/incoming
+JSON_TO_FLAT_USER=${WORK_DIR}/incoming/user.$$.flat
 ERROR=${WORK_DIR}/create_user.$$.err
 CHECK=${WORK_DIR}/create_user.$$.out    # Test setting.
 VERSION="0.3"
@@ -74,6 +73,7 @@ if [ -s "$1" ]; then
 	if [ -s "$JSON_TO_FLAT_USER" ]; then 
 		# move converted user to incoming directory for loading on ILS.
 		scp ${JSON_TO_FLAT_USER} sirsi\@edpl-t.library.ualberta.ca:/s/sirsi/Unicorn/EPLwork/cronjobscripts/OnlineRegistration/Incoming
+		mv ${JSON_TO_FLAT_USER} ${JSON_TO_FLAT_USER}.out
 	else
 		echo "*** error failed to convert customer JSON data to FLAT format." >>${ERROR}
 		echo "internal server error, conversion error."
