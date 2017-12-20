@@ -43,7 +43,7 @@
 DATE_NOW=$(date '+%Y%m%d%H%M%S')  # Looks like: 20171214164754
 WORK_DIR=/home/ilsadmin/create_user
 PY_CONVERTER=$WORK_DIR/scripts/create_user.py
-JSON_TO_FLAT_USER=$WORK_DIR/incoming/user.$$.flat
+JSON_TO_FLAT_USER=$WORK_DIR/incoming/user.$DATE_NOW.flat
 LOG=$WORK_DIR/create_user.log
 USER=sirsi
 HOSTNAME=edpl-t.library.ualberta.ca
@@ -57,30 +57,23 @@ then
 	echo "internal server error, resource not available."
 	exit -1
 fi
-
-while true; do
-	if ls $WORK_DIR/*.block 2>/dev/null; then
-		sleep 5
+cd $WORK_DIR
+for json_file in $(ls $WORK_DIR/incoming/*.data 2>/dev/null); do
+	/usr/bin/python3.5 $PY_CONVERTER -j $json_file 2>>$LOG >>$JSON_TO_FLAT_USER 
+	if [ -s "$JSON_TO_FLAT_USER" ]; then 
+		rm $json_file
 	else
-		for json_file in $(ls $WORK_DIR/incoming/*.data 2>/dev/null); do
-			/usr/bin/python3.5 $PY_CONVERTER -j $json_file 2>>$LOG >>$JSON_TO_FLAT_USER 
-			if [ -s "$JSON_TO_FLAT_USER" ]; then 
-				rm $json_file
-			else
-				echo "** error converting $json_file to $JSON_TO_FLAT_USER" >>$LOG
-			fi
-		done
-		# Now if there are any flat files create now or in the past, scp them over.
-		for flat_file in $(ls $WORK_DIR/incoming/*.flat 2>/dev/null); do
-			# move converted user to incoming directory for loading on ILS.
-			if scp $flat_file $SERVER:$REMOTE_DIR >>$LOG
-			then
-				rm $flat_file
-			else
-				echo "** error scp $flat_file" >>$LOG
-			fi
-		done
-		sleep 30
+		echo "** error converting $json_file to $JSON_TO_FLAT_USER" >>$LOG
+	fi
+done
+# Now if there are any flat files create now or in the past, scp them over.
+for flat_file in $(ls $WORK_DIR/incoming/*.flat 2>/dev/null); do
+	# move converted user to incoming directory for loading on ILS.
+	if scp $flat_file $SERVER:$REMOTE_DIR >>$LOG
+	then
+		rm $flat_file
+	else
+		echo "** error scp $flat_file" >>$LOG
 	fi
 done
 exit 0
