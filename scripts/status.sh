@@ -27,21 +27,22 @@
 #          0.0 - Dev. 
 #
 ##############################################################################
-VERSION="0.0"
+VERSION="0.1"
 ### This script will send a seluser request, which will test pathing to all SirsiDynix executables.
 ### All calls must have explicit exit code to trigger the node.js exec.on('exit', function(code)) to run.
 USER_ID=21221012345678
 TEST_ILS="sirsi@edpl-t.library.ualberta.ca"  # Test server is default ILS to write to.
 PROD_ILS="sirsi@eplapp.library.ualberta.ca"  # Production server is default ILS to write to.
 SERVER="$TEST_ILS"                           # Current server target.
-ERROR=/home/ilsadmin/create_user/scripts/err.log
 OUT=/home/ilsadmin/create_user/scripts/out.log
+ERR=/home/ilsadmin/create_user/scripts/err.log
+cd /home/ilsadmin/create_user/scripts
 # USER_KEY=$(echo "$USER_ID" | ssh $SERVER 'cat - | seluser -iB')
- ssh -t sirsi@edpl-t.library.ualberta.ca << EOSSH 2>$ERROR >$OUT
+ssh -t sirsi@edpl-t.library.ualberta.ca << EOSSH 2>>$ERR >$OUT
 echo 21221012345678 | seluser -iB -oB
 exit
 EOSSH
-USER_KEY=$(grep 21221012345678 $OUT)
+USER_KEY=$(/bin/grep 21221012345678 $OUT)
 # If that failed then echo a message to STDERR and echo '-1' to STDOUT.
 if [[ -z "${USER_KEY// }" ]]; then
 	echo "** error, failed to find $USER_ID on $SERVER **" >&2
