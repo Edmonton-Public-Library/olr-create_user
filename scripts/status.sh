@@ -34,14 +34,14 @@ USER_ID=21221012345678
 TEST_ILS="sirsi@edpl-t.library.ualberta.ca"  # Test server is default ILS to write to.
 PROD_ILS="sirsi@eplapp.library.ualberta.ca"  # Production server is default ILS to write to.
 SERVER="$TEST_ILS"                           # Current server target.
-ERROR=err.log
-OUT=out.log
+ERROR=/home/ilsadmin/create_user/scripts/err.log
+OUT=/home/ilsadmin/create_user/scripts/out.log
 # USER_KEY=$(echo "$USER_ID" | ssh $SERVER 'cat - | seluser -iB')
- ssh -t sirsi@edpl-t.library.ualberta.ca << EOSSH 2>err.log >out.log
+ ssh -t sirsi@edpl-t.library.ualberta.ca << EOSSH 2>$ERROR >$OUT
 echo 21221012345678 | seluser -iB -oB
 exit
 EOSSH
-USER_KEY=$(grep 21221012345678 out.log)
+USER_KEY=$(grep 21221012345678 $OUT)
 # If that failed then echo a message to STDERR and echo '-1' to STDOUT.
 if [[ -z "${USER_KEY// }" ]]; then
 	echo "** error, failed to find $USER_ID on $SERVER **" >&2
