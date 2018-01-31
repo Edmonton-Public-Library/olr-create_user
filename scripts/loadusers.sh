@@ -25,14 +25,19 @@
 # Copyright (c) Thu Feb 23 16:22:30 MST 2017
 # Rev: 
 #           
+#          1.0 - Updated duplicate user database with newly created accounts. 
+#          0.1 - Updated load user to use ssh in different way. 
 #          0.0 - Dev. 
 #
 ##############################################################################
 ### Checks the Incoming directory and loads any flat files it finds.
-. /s/sirsi/Unicorn/EPLwork/cronjobscripts/setscriptenvironment.sh
 DATE_NOW=$(date '+%Y-%m-%d %H:%M:%S')
 ANSI_DATE=$(date '+%Y%m%d')
 WORK_DIR=/s/sirsi/Unicorn/EPLwork/cronjobscripts/OnlineRegistration
+LOCAL_DIR=/home/ilsadmin/duplicate_user/incoming
+USER_FILE=$LOCAL_DIR/users.lst
+PY_SCRIPT_DIR=/home/ilsadmin/duplicate_user/scripts/duplicate_user.py
+PY_SCRIPT_ARGS="-b$USER_FILE"
 LOG=$WORK_DIR/load.log
 cd $WORK_DIR
 for flat_customer in $(ls $WORK_DIR/Incoming/*.flat 2>/dev/null); do 
@@ -61,17 +66,47 @@ for flat_customer in $(ls $WORK_DIR/Incoming/*.flat 2>/dev/null); do
 	# loadFlatUserUpdate.add("-mu"); // update
 	# loadFlatUserUpdate.add("-n"); // turn off BRS checking.
 	## Create
-	cat $flat_customer | loadflatuser -aU -bU -l"ADMIN|PCGUI-DISP" -mc -n -y"EPLMNA" -d 2>load_user.err >load_user.keys
+	ssh -t sirsi@edpl-t.library.ualberta.ca << EOSSH 2>load_user.err >load_user.keys
+cat $flat_customer | loadflatuser -aU -bU -l"ADMIN|PCGUI-DISP" -mc -n -y"EPLMNA" -d 
+exit
+EOSSH
+	# cat $flat_customer | loadflatuser -aU -bU -l"ADMIN|PCGUI-DISP" -mc -n -y"EPLMNA" -d 2>load_user.err >load_user.keys
 	## Update
 	# cat $flat_customer | loadflatuser -aR -bR -l"ADMIN|PCGUI-DISP" -mu -n -y"EPLMNA" -d 2>load_user.err >load_user.keys
 	cat load_user.err | egrep -e"\*\*error|\*\*USER|oralib" >>$LOG
-	for line in $(cat seluser.err 2>/dev/null | egrep "error number 111"); do 
+	for line in $(cat load_user.err 2>/dev/null | egrep "error number 111"); do 
 		retain_flat_file=1
 		echo "[$DATE_NOW] failed load: $line" >>$LOG
 	done 
 	status=$(cat load_user.err 2>/dev/null | egrep 1402)
 	echo "[$DATE_NOW] status '$status'" >>$LOG
 	if [ "$retain_flat_file" ]; then
+		# Before we remove the successful flat file, let's use the data in it to update duplicate user database.
+        # UKEY|FNAME|LNAME|EMAIL|DOB|
+		# Will convert into the following.
+        # 1385638|Bonita|Guler|bonitas.92@hotmail.com|1974-01-06|
+		# {"index": {"_id": "1385638"}}
+		# {"lname": "Guler", "dob": "1974-01-06", "email": "bonitas.92@hotmail.com", "fname": "Bonita"}
+		# This code is taken from sample_users.sh in /s/sirsi/Unicorn/EPLwork/cronjobscripts/OnlineRegistration.
+		# seluser  -oU--first_name--last_nameX.9007.s 2>/dev/null | pipe.pl -m'c4:####-##-##' -nc3 -I >$USER_FILE
+		# Get the user ids
+		for user_id in $(cat $flat_customer | pipe.pl -gc0:USER_ID -mc1:_# -oc1); do
+			ssh -t sirsi@edpl-t.library.ualberta.ca << EOSSH  2>>load_user.err >>$USER_FILE 
+echo $user_id | seluser -iB -oU--first_name--last_nameX.9007.s | pipe.pl -m'c4:####-##-##' -nc3 -I
+exit
+EOSSH
+		done
+		# The file will be full of stuff from the ssh command as well so clean that out.
+		cat "$USER_FILE" | pipe.pl -gc0:"^\d+" >clean.tmp
+		mv clean.tmp $USER_FILE
+		# now convert the customers and load the results. This comes from fetch_new_users.sh
+		if [ -s "$USER_FILE" ]; then
+			/usr/bin/python $PY_SCRIPT_DIR $PY_SCRIPT_ARGS
+			rm $USER_FILE # this will rm the file if it had any content.
+		fi
+		# Even if the above fails, all it means is the duplciate data base doesn't get updated. 
+		# still remove the flat file, all new customers created since the last time fetch_new_users.sh
+		# ran will be added tonight.
 		echo "removing file: " >&2
 		rm $flat_customer
 	else
@@ -80,7 +115,6 @@ for flat_customer in $(ls $WORK_DIR/Incoming/*.flat 2>/dev/null); do
 	fi
 	rm load_user.keys
 	rm load_user.err
-	rm seluser.err
 	echo "[$DATE_NOW] ==" >>$LOG
 done
 exit 0

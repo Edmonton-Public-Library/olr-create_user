@@ -23,6 +23,7 @@
 # Author:  Andrew Nisbet, Edmonton Public Library
 # Copyright (c) Thu Aug 24 14:05:32 MDT 2017
 # Rev: 
+#          0.1 - Removed dump of STDERR to /dev/null for diagnostics. 
 #          0.0 - Dev. 
 #
 ##############################################################################
@@ -33,7 +34,14 @@ USER_ID=21221012345678
 TEST_ILS="sirsi@edpl-t.library.ualberta.ca"  # Test server is default ILS to write to.
 PROD_ILS="sirsi@eplapp.library.ualberta.ca"  # Production server is default ILS to write to.
 SERVER="$TEST_ILS"                           # Current server target.
-USER_KEY=$(echo "$USER_ID" | ssh $SERVER 'cat - | seluser -iB' 2>/dev/null)
+ERROR=err.log
+OUT=out.log
+# USER_KEY=$(echo "$USER_ID" | ssh $SERVER 'cat - | seluser -iB')
+ ssh -t sirsi@edpl-t.library.ualberta.ca << EOSSH 2>err.log >out.log
+echo 21221012345678 | seluser -iB -oB
+exit
+EOSSH
+USER_KEY=$(grep 21221012345678 out.log)
 # If that failed then echo a message to STDERR and echo '-1' to STDOUT.
 if [[ -z "${USER_KEY// }" ]]; then
 	echo "** error, failed to find $USER_ID on $SERVER **" >&2
