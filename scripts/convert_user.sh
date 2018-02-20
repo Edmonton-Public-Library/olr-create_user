@@ -24,6 +24,8 @@
 # Author:  Andrew Nisbet, Edmonton Public Library
 # Copyright (c) Thu Feb 23 16:22:30 MST 2017
 # Rev: 
+#          0.7 - Added more reporting to log. 
+#          0.6 -  
 #          0.5 - Self-standing service conversion. 
 #          0.4 - Fix ssh load. 
 #          0.3 - Fixing stuff so the script can run it. 
@@ -49,18 +51,19 @@ USER=sirsi
 HOSTNAME=edpl-t.library.ualberta.ca
 SERVER="$USER@$HOSTNAME"
 REMOTE_DIR=/s/sirsi/Unicorn/EPLwork/cronjobscripts/OnlineRegistration/Incoming
-VERSION="0.6"
+VERSION="0.7"
 
 if  [ ! -s "$PY_CONVERTER" ]
 then
 	echo "** error: can't find associated python conversion script '$PY_CONVERTER'."  >&2
-	echo "internal server error, resource not available."
+	echo "internal server error, resource not available."  >&2
 	exit -1
 fi
 cd $WORK_DIR
 for json_file in $(ls $WORK_DIR/incoming/*.data 2>/dev/null); do
 	/usr/bin/python3.5 $PY_CONVERTER -j $json_file 2>>$LOG >>$JSON_TO_FLAT_USER 
 	if [ -s "$JSON_TO_FLAT_USER" ]; then 
+		echo "removing $json_file" >>$LOG
 		rm $json_file
 	else
 		echo "** error converting $json_file to $JSON_TO_FLAT_USER" >>$LOG
@@ -71,6 +74,7 @@ for flat_file in $(ls $WORK_DIR/incoming/*.flat 2>/dev/null); do
 	# move converted user to incoming directory for loading on ILS.
 	if scp $flat_file $SERVER:$REMOTE_DIR >>$LOG
 	then
+		echo "removing $flat_file after successfully scping to $SERVER:$REMOTE_DIR" >>$LOG
 		rm $flat_file
 	else
 		echo "** error scp $flat_file" >>$LOG
