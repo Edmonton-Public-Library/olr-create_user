@@ -48,12 +48,11 @@ WORK_DIR=/home/ilsadmin/create_user
 PY_CONVERTER=$WORK_DIR/scripts/create_user.py
 JSON_TO_FLAT_USER=$WORK_DIR/incoming/user.$DATE_NOW.flat
 LOG=$WORK_DIR/create_user.log
-USER=sirsi
-# HOSTNAME=edpl-t.library.ualberta.ca
-HOSTNAME=eplapp.library.ualberta.ca
-SERVER="$USER@$HOSTNAME"
+TEST_ILS="sirsi@edpl-t.library.ualberta.ca"  # Test server is default ILS to write to.
+PROD_ILS="sirsi@eplapp.library.ualberta.ca"  # Production server is default ILS to write to.
+SERVER="$PROD_ILS"                           # Current server target.
 REMOTE_DIR=/s/sirsi/Unicorn/EPLwork/cronjobscripts/OnlineRegistration/Incoming
-VERSION="0.7"
+VERSION="0.8"
 
 if  [ ! -s "$PY_CONVERTER" ]
 then

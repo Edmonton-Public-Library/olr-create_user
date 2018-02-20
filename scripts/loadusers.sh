@@ -25,6 +25,7 @@
 # Copyright (c) Thu Feb 23 16:22:30 MST 2017
 # Rev: 
 #           
+#          1.1 - Cut-over to production (Tue Feb 20 09:32:48 MST 2018). 
 #          1.0 - Updated duplicate user database with newly created accounts. 
 #          0.1 - Updated load user to use ssh in different way. 
 #          0.0 - Dev. 
@@ -39,6 +40,9 @@ USER_FILE=$LOCAL_DIR/users.lst
 PY_SCRIPT_DIR=/home/ilsadmin/duplicate_user/scripts/duplicate_user.py
 PY_SCRIPT_ARGS="-b$USER_FILE"
 LOG=$WORK_DIR/load.log
+TEST_ILS="sirsi@edpl-t.library.ualberta.ca"  # Test server is default ILS to write to.
+PROD_ILS="sirsi@eplapp.library.ualberta.ca"  # Production server is default ILS to write to.
+SERVER="$PROD_ILS"                           # Current server target.
 cd $WORK_DIR
 for flat_customer in $(ls $WORK_DIR/Incoming/*.flat 2>/dev/null); do 
 	retain_flat_file=0
@@ -66,7 +70,7 @@ for flat_customer in $(ls $WORK_DIR/Incoming/*.flat 2>/dev/null); do
 	# loadFlatUserUpdate.add("-mu"); // update
 	# loadFlatUserUpdate.add("-n"); // turn off BRS checking.
 	## Create
-	ssh -t sirsi@edpl-t.library.ualberta.ca << EOSSH 2>load_user.err >load_user.keys
+	ssh -t sirsi@$SERVER << EOSSH 2>load_user.err >load_user.keys
 cat $flat_customer | loadflatuser -aU -bU -l"ADMIN|PCGUI-DISP" -mc -n -y"EPLMNA" -d 
 exit
 EOSSH
@@ -91,7 +95,7 @@ EOSSH
 		# seluser  -oU--first_name--last_nameX.9007.s 2>/dev/null | pipe.pl -m'c4:####-##-##' -nc3 -I >$USER_FILE
 		# Get the user ids
 		for user_id in $(cat $flat_customer | pipe.pl -gc0:USER_ID -mc1:_# -oc1); do
-			ssh -t sirsi@edpl-t.library.ualberta.ca << EOSSH  2>>load_user.err >>$USER_FILE 
+			ssh -t sirsi@$SERVER << EOSSH  2>>load_user.err >>$USER_FILE 
 echo $user_id | seluser -iB -oU--first_name--last_nameX.9007.s | pipe.pl -m'c4:####-##-##' -nc3 -I
 exit
 EOSSH

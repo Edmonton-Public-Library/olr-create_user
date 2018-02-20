@@ -23,6 +23,7 @@
 # Author:  Andrew Nisbet, Edmonton Public Library
 # Copyright (c) Thu Aug 24 14:05:32 MDT 2017
 # Rev: 
+#          0.2 - Production cut-over. 
 #          0.1 - Removed dump of STDERR to /dev/null for diagnostics. 
 #          0.0 - Dev. 
 #
@@ -33,7 +34,7 @@ VERSION="0.1"
 USER_ID=21221012345678
 TEST_ILS="sirsi@edpl-t.library.ualberta.ca"  # Test server is default ILS to write to.
 PROD_ILS="sirsi@eplapp.library.ualberta.ca"  # Production server is default ILS to write to.
-SERVER="$TEST_ILS"                           # Current server target.
+SERVER="$PROD_ILS"                           # Current server target.
 OUT=/home/ilsadmin/create_user/scripts/out.log
 ERR=/home/ilsadmin/create_user/scripts/err.log
 cd /home/ilsadmin/create_user/scripts
