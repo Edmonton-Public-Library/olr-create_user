@@ -24,6 +24,7 @@
 # Author:  Andrew Nisbet, Edmonton Public Library
 # Copyright (c) Thu Feb 23 16:22:30 MST 2017
 # Rev: 
+#          0.8 - Cut-over for production. 
 #          0.7 - Added more reporting to log. 
 #          0.6 -  
 #          0.5 - Self-standing service conversion. 
@@ -48,7 +49,8 @@ PY_CONVERTER=$WORK_DIR/scripts/create_user.py
 JSON_TO_FLAT_USER=$WORK_DIR/incoming/user.$DATE_NOW.flat
 LOG=$WORK_DIR/create_user.log
 USER=sirsi
-HOSTNAME=edpl-t.library.ualberta.ca
+# HOSTNAME=edpl-t.library.ualberta.ca
+HOSTNAME=eplapp.library.ualberta.ca
 SERVER="$USER@$HOSTNAME"
 REMOTE_DIR=/s/sirsi/Unicorn/EPLwork/cronjobscripts/OnlineRegistration/Incoming
 VERSION="0.7"
