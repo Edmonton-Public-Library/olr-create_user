@@ -24,6 +24,8 @@
 # Author:  Andrew Nisbet, Edmonton Public Library
 # Copyright (c) Thu Feb 23 16:22:30 MST 2017
 # Rev: 
+#          0.1 - Added missing USER_CATEGORY2, USER_BIRTH_DATE, and reordered for 
+#                easy parsing and adding to the duplicate user database. 
 #          0.0 - Dev. 
 #
 ##############################################################################
@@ -97,20 +99,20 @@ class Customer:
     def __str__(self):
         flat_customer = ('*** DOCUMENT BOUNDARY ***\n'
         'FORM=LDUSER\n'
-        '.USER_FIRST_NAME.   |a' + str(self.json['USER_FIRST_NAME']) + '\n'
+		'.USER_ID.   |a' + str(self.json['USER_ID']) + '\n'
         '.USER_ACCESS.   |aPUBLIC\n'
         '.USER_STATUS.   |aOK\n'
         '.USER_CHG_HIST_RULE.   |aCIRCRULE\n'
         '.USER_MAILINGADDR.   |a1\n'
-        '.USER_ID.   |a' + str(self.json['USER_ID']) + '\n'
         '.USER_ROUTING_FLAG.   |aY\n'
         '.USER_CATEGORY5.   |aECONSENT\n'
         '.USER_ENVIRONMENT.   |aPUBLIC\n'
+		'.USER_FIRST_NAME.   |a' + str(self.json['USER_FIRST_NAME']) + '\n'
+		'.USER_LAST_NAME.   |a' + str(self.json['USER_LAST_NAME']) + '\n'
         '.USER_PREFERRED_NAME.   |a' + str(self.json['USER_LAST_NAME']).upper() + ', ' + str(self.json['USER_FIRST_NAME']).upper() + '\n'
         '.USER_PREF_LANG.   |aENGLISH\n'
         '.USER_PIN.   |a' + str(self.json['USER_PIN']) + '\n'
         '.USER_PROFILE.   |a' + str(self.profile) + '\n'
-        '.USER_LAST_NAME.   |a' + str(self.json['USER_LAST_NAME']) + '\n'
         '.USER_LIBRARY.   |aEPLMNA\n'
         '.USER_PRIV_EXPIRES.   |a' + str(self.expire) + '\n'
         '.USER_PRIV_GRANTED.   |a' + str(self.today) + '\n'
