@@ -7,3 +7,5 @@ scripts/create_lost_user.sh
 scripts/loaduser.sh
 create_user.log
 scripts/create_user.out
+*.tar
+scripts/*.log

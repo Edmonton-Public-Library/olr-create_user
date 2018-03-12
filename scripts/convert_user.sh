@@ -96,7 +96,7 @@ for flat_file in $(ls $WORK_DIR/incoming/*.flat 2>/dev/null); do
 		# ran will be added tonight.
 		echo "[$DATE_NOW] removing file: " >&2
 		rm $flat_file
-		# rm $WORK_DIR/tmp.$$
+		rm $WORK_DIR/tmp.$$
 	else
 		echo "[$DATE_NOW] ** error scp $flat_file" >>$LOG
 	fi
