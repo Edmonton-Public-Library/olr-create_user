@@ -39,7 +39,7 @@ OUT=/home/ilsadmin/create_user/scripts/out.log
 ERR=/home/ilsadmin/create_user/scripts/err.log
 cd /home/ilsadmin/create_user/scripts
 # USER_KEY=$(echo "$USER_ID" | ssh $SERVER 'cat - | seluser -iB')
-ssh -t sirsi@edpl-t.library.ualberta.ca << EOSSH 2>>$ERR >$OUT
+ssh -t $SERVER << EOSSH 2>>$ERR >$OUT
 echo 21221012345678 | seluser -iB -oB
 exit
 EOSSH
