@@ -9,3 +9,4 @@ create_user.log
 scripts/create_user.out
 *.tar
 scripts/*.log
+*.json
