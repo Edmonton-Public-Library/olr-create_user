@@ -30,6 +30,7 @@
 #
 ##############################################################################
 from pathlib import Path
+import datetime
 import os
 import sys
 import getopt
@@ -88,7 +89,8 @@ class Customer:
         # .EMAIL.   |axxxxxxxx@hotmail.com
         # .USER_ADDR1_END.
         self.expire = 'NEVER'
-        self.today = '20170826'
+        p_date = datetime.datetime.now()
+        self.today = p_date.strftime("%Y%m%d")
         # Test for user age
         if self.json['USER_AGE'] < 18:
             self.profile = 'EPL_JUV'
