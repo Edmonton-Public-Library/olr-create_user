@@ -1,7 +1,7 @@
 #!/bin/bash
 ##################################################################################
 #
-# Coordinates the conversion from JSON to flat, then loads the flat file(s). 
+# Coordinates the conversion from JSON to flat, then loads the flat file(s).
 #
 # Creates users on the ILS using loadflatuser.
 #    Copyright (C) 2017  Andrew Nisbet
@@ -10,12 +10,12 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -23,38 +23,39 @@
 #
 # Author:  Andrew Nisbet, Edmonton Public Library
 # Copyright (c) Thu Feb 23 16:22:30 MST 2017
-# Rev: 
-#          0.9 - Add user to duplicate user database. 
-#          0.8 - Cut-over for production. 
-#          0.7 - Added more reporting to log. 
-#          0.6 -  
-#          0.5 - Self-standing service conversion. 
-#          0.4 - Fix ssh load. 
-#          0.3 - Fixing stuff so the script can run it. 
-#          0.2 - Dereference path variable fix. 
-#          0.1 - Dev. 
-#          0.0 - Dev. 
+# Rev:
+#          0.9 - Add user to duplicate user database.
+#          0.8 - Cut-over for production.
+#          0.7 - Added more reporting to log.
+#          0.6 -
+#          0.5 - Self-standing service conversion.
+#          0.4 - Fix ssh load.
+#          0.3 - Fixing stuff so the script can run it.
+#          0.2 - Dereference path variable fix.
+#          0.1 - Dev.
+#          0.0 - Dev.
 #
 ##############################################################################
 ### This script is run by create_user.js Node.js application. It converts JSON
-### formatted customer information into FLAT customer information, then moves 
-### the FLAT customer to the $CREATE_USER/incoming directory to be loaded by 
+### formatted customer information into FLAT customer information, then moves
+### the FLAT customer to the $CREATE_USER/incoming directory to be loaded by
 ### load_flat_user.sh.
 ##
-## The Node.js server will serialize data of users to be created into a file. 
+## The Node.js server will serialize data of users to be created into a file.
 ## Find this script and convert to flat user (web service-usable format),
 ## and load via appropriate mechanism. See create_user.py for conversion functions.
+echo $HOME
 DATE_NOW=$(date '+%Y%m%d%H%M%S')  # Looks like: 20171214164754
-WORK_DIR=/home/ilsadmin/create_user
+WORK_DIR=$HOME/OnlineRegistration/olr-create_user
 PY_CONVERTER=$WORK_DIR/scripts/create_user.py
 JSON_TO_FLAT_USER=$WORK_DIR/incoming/user.$DATE_NOW.flat
 LOG=$WORK_DIR/create_user.log
 TEST_ILS="sirsi@edpl-t.library.ualberta.ca"  # Test server is default ILS to write to.
 PROD_ILS="sirsi@eplapp.library.ualberta.ca"  # Production server is default ILS to write to.
-SERVER="$PROD_ILS"                           # Current server target.
+SERVER="$TEST_ILS"                           # Current server target.
 REMOTE_DIR=/s/sirsi/Unicorn/EPLwork/cronjobscripts/OnlineRegistration/Incoming
-PY_SCRIPT_DIR=/home/ilsadmin/duplicate_user/scripts/duplicate_user.py
-VERSION="0.9"
+PY_SCRIPT_DIR=$HOME/OnlineRegistration/olr-duplicate_user/scripts/duplicate_user.py
+VERSION="1.0"
 
 if  [ ! -s "$PY_CONVERTER" ]
 then
@@ -64,8 +65,8 @@ then
 fi
 cd $WORK_DIR
 for json_file in $(ls $WORK_DIR/incoming/*.data 2>/dev/null); do
-	/usr/bin/python3.5 $PY_CONVERTER -j $json_file 2>>$LOG >>$JSON_TO_FLAT_USER 
-	if [ -s "$JSON_TO_FLAT_USER" ]; then 
+	/usr/bin/python $PY_CONVERTER -j $json_file 2>>$LOG >>$JSON_TO_FLAT_USER
+	if [ -s "$JSON_TO_FLAT_USER" ]; then
 		echo "[$DATE_NOW] removing $json_file" >>$LOG
 		rm $json_file
 	else
@@ -91,7 +92,7 @@ for flat_file in $(ls $WORK_DIR/incoming/*.flat 2>/dev/null); do
 		# Get the user ids (as keys since they don't have real keys yet on the ILS)|FNAME|LNAME|EMAIL|DOB|
 		cat $flat_file | pipe.pl -g'c0:USER_ID|FIRST_NAME|LAST_NAME|EMAIL' -oc1 -mc1:_# -P -H >$WORK_DIR/tmp.$$
 		/usr/bin/python $PY_SCRIPT_DIR -b$WORK_DIR/tmp.$$
-		# Even if the above fails, all it means is the duplciate data base doesn't get updated. 
+		# Even if the above fails, all it means is the duplciate data base doesn't get updated.
 		# still remove the flat file, all new customers created since the last time fetch_new_users.sh
 		# ran will be added tonight.
 		echo "[$DATE_NOW] removing file: " >&2

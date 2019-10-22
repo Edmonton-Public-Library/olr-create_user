@@ -1,7 +1,7 @@
 #!/bin/bash
 ##################################################################################
 #
-# Reads and reports the next user ID. 
+# Reads and reports the next user ID.
 #
 #    Copyright (C) 2017  Andrew Nisbet
 #
@@ -9,12 +9,12 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -22,10 +22,10 @@
 #
 # Author:  Andrew Nisbet, Edmonton Public Library
 # Copyright (c) Thu Aug 24 14:05:32 MDT 2017
-# Rev: 
-#          0.2 - Reworked dereferencing paths in variables. 
-#          0.1 - Working version. 
-#          0.0 - Dev. 
+# Rev:
+#          0.2 - Reworked dereferencing paths in variables.
+#          0.1 - Working version.
+#          0.0 - Dev.
 #
 ##############################################################################
 VERSION="0.2"
@@ -34,7 +34,7 @@ VERSION="0.2"
 ### Source of the next user ID number.
 ### '21221900000007'
 ### All calls must have explicit exit code to trigger the node.js exec.on('exit', function(code)) to run.
-export NEXT_ID_FILE=/home/ilsadmin/create_user/scripts/nextcustomerid
+export NEXT_ID_FILE=$HOME/OnlineRegistration/olr-create_user/scripts/nextcustomerid
 export PATH=$PATH:/usr/local/bin:/bin
 if [ -s "$NEXT_ID_FILE" ]; then
 	# Take the current ID and use pipe.pl to increment the value.
@@ -51,7 +51,7 @@ if [ -s "$NEXT_ID_FILE" ]; then
 		exit 0 # Success
 	fi
 else
-	# report that the nextcustomerid file couldn't be found and the ILS admin 
+	# report that the nextcustomerid file couldn't be found and the ILS admin
 	# needs to find the last highest customer ID with the prefix '$CARD_PREFIX'
 	# and put that in a file called '$NEXT_ID_FILE'. See above.
 	echo "** error, could not find $NEXT_ID_FILE **" >&2

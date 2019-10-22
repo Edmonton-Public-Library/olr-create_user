@@ -1,7 +1,7 @@
 #!/bin/bash
 ##################################################################################
 #
-# Tests if the ILS is available. 
+# Tests if the ILS is available.
 #
 #    Copyright (C) 2017  Andrew Nisbet
 #
@@ -9,12 +9,12 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -22,10 +22,10 @@
 #
 # Author:  Andrew Nisbet, Edmonton Public Library
 # Copyright (c) Thu Aug 24 14:05:32 MDT 2017
-# Rev: 
-#          0.2 - Production cut-over. 
-#          0.1 - Removed dump of STDERR to /dev/null for diagnostics. 
-#          0.0 - Dev. 
+# Rev:
+#          0.2 - Production cut-over.
+#          0.1 - Removed dump of STDERR to /dev/null for diagnostics.
+#          0.0 - Dev.
 #
 ##############################################################################
 VERSION="0.1"
@@ -34,10 +34,10 @@ VERSION="0.1"
 USER_ID=21221012345678
 TEST_ILS="sirsi@edpl-t.library.ualberta.ca"  # Test server is default ILS to write to.
 PROD_ILS="sirsi@eplapp.library.ualberta.ca"  # Production server is default ILS to write to.
-SERVER="$PROD_ILS"                           # Current server target.
-OUT=/home/ilsadmin/create_user/scripts/out.log
-ERR=/home/ilsadmin/create_user/scripts/err.log
-cd /home/ilsadmin/create_user/scripts
+SERVER="$TEST_ILS"                           # Current server target.
+OUT=$HOME/OnlineRegistration/olr-create_user/scripts/out.log
+ERR=$HOME/OnlineRegistration/olr-create_user/scripts/err.log
+cd $HOME/OnlineRegistration/olr-create_user/scripts
 # USER_KEY=$(echo "$USER_ID" | ssh $SERVER 'cat - | seluser -iB')
 ssh -t $SERVER << EOSSH 2>>$ERR >$OUT
 echo 21221012345678 | seluser -iB -oB
