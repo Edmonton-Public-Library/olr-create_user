@@ -11,15 +11,11 @@ TEST_SERVER=sirsi@edpl-t.library.ualberta.ca
 PRODUCTION_SERVER=sirsi@eplapp.library.ualberta.ca
 REMOTE_DIR=/s/sirsi/Unicorn/EPLwork/cronjobscripts/OnlineRegistration
 LOCAL_DIR=scripts
-APP=loadusers.sh
-SERVICE=watcher.js
 .PHONY: production test
-test: ${LOCAL_DIR}/${APP}
-	scp ${LOCAL_DIR}/${APP} ${TEST_SERVER}:${REMOTE_DIR}/${APP}
-	scp ${LOCAL_DIR}/${APP} ${TEST_SERVER}:${REMOTE_DIR}/${SERVICE}
+test:
+	scp ${LOCAL_DIR}/symphony/*.sh ${TEST_SERVER}:${REMOTE_DIR}/
+	scp ${LOCAL_DIR}/watcher.js ${TEST_SERVER}:${REMOTE_DIR}/
 
-production: ${LOCAL_DIR}/${APP}
-	scp ${LOCAL_DIR}/${APP} ${TEST_SERVER}:${REMOTE_DIR}/${APP}
-	scp ${LOCAL_DIR}/${APP} ${TEST_SERVER}:${REMOTE_DIR}/${SERVICE}
-	scp ${LOCAL_DIR}/${APP} ${PRODUCTION_SERVER}:${REMOTE_DIR}/${APP}
-	scp ${LOCAL_DIR}/${APP} ${PRODUCTION_SERVER}:${REMOTE_DIR}/${SERVICE}
+production:
+	scp ${LOCAL_DIR}/symphony/*.sh ${PRODUCTION_SERVER}:${REMOTE_DIR}/
+	scp ${LOCAL_DIR}/watcher.js ${PRODUCTION_SERVER}:${REMOTE_DIR}/

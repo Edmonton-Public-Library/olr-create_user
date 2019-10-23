@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 ##################################################################################
 #
-# Creates and loads users based on data in file /home/ilsadmin/create_user/scripts. 
+# Creates and loads users based on data in file /home/ilsadmin/create_user/scripts.
 #
 # Fetch the set of new users from the ILS, then zero out the file on success.
 #    Copyright (C) 2017  Andrew Nisbet
@@ -10,12 +10,12 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -23,10 +23,10 @@
 #
 # Author:  Andrew Nisbet, Edmonton Public Library
 # Copyright (c) Thu Feb 23 16:22:30 MST 2017
-# Rev: 
-#          0.1 - Added missing USER_CATEGORY2, USER_BIRTH_DATE, and reordered for 
-#                easy parsing and adding to the duplicate user database. 
-#          0.0 - Dev. 
+# Rev:
+#          0.1 - Added missing USER_CATEGORY2, USER_BIRTH_DATE, and reordered for
+#                easy parsing and adding to the duplicate user database.
+#          0.0 - Dev.
 #
 ##############################################################################
 from pathlib import Path
@@ -47,19 +47,19 @@ class Customer:
         self.json = data
         # JSON format:
         # {
-        # 'USER_LAST_NAME': 'Crowley', 
-        # 'CITYONLY': 'Edmonton', 
+        # 'USER_LAST_NAME': 'Crowley',
+        # 'CITYONLY': 'Edmonton',
         # 'ADDRESS': {'STREET': '1503 Wellwood Way NW', 'POSTALCODE': 'T6M 2M3', 'CITY_STATE': 'Edmonton, AB'},
-        # 'USER_FIRST_NAME': 'Edward', 
-        # 'USER_PIN': 'mtj8528', 
-        # 'ADDRESSONLY': '1503 Wellwood Way NW', 
-        # 'EMAIL': 'jd@jdlien.com', 
-        # 'PHONE': '403-444-1258', 
-        # 'USER_CATEGORY2': 'M', 
-        # 'CARE_OF': 'Sylvia Crowley', 
-        # 'APARTMENTONLY': '', 
-        # 'PROVINCEONLY': 'AB', 
-        # 'USER_BIRTH_DATE': 20090918, 
+        # 'USER_FIRST_NAME': 'Edward',
+        # 'USER_PIN': 'mtj8528',
+        # 'ADDRESSONLY': '1503 Wellwood Way NW',
+        # 'EMAIL': 'jd@jdlien.com',
+        # 'PHONE': '403-444-1258',
+        # 'USER_CATEGORY2': 'M',
+        # 'CARE_OF': 'Sylvia Crowley',
+        # 'APARTMENTONLY': '',
+        # 'PROVINCEONLY': 'AB',
+        # 'USER_BIRTH_DATE': 20090918,
         # 'USER_AGE': 7
         # }
         # Convert the customer to flat format.
@@ -137,7 +137,7 @@ def usage():
     sys.stderr.write(' -t Test mode.\n');
     sys.stderr.write(' -x This message.\n');
     sys.exit(1)
-            
+
 # Take valid command line arguments.
 def main(argv):
     customer_json_file = ''
@@ -178,7 +178,7 @@ def main(argv):
         sys.stderr.write('** error, JSON customer data file required.\n')
         usage()
         sys.exit(-1)
-    
+
     # Done.
     sys.exit(0)
 

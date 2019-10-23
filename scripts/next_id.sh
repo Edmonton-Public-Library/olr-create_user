@@ -35,7 +35,7 @@ VERSION="0.2"
 ### '21221900000007'
 ### All calls must have explicit exit code to trigger the node.js exec.on('exit', function(code)) to run.
 export NEXT_ID_FILE=$HOME/OnlineRegistration/olr-create_user/scripts/nextcustomerid
-export PATH=$PATH:/usr/local/bin:/bin
+export PATH=$PATH:/usr/local/bin:/usr/bin:/bin
 if [ -s "$NEXT_ID_FILE" ]; then
 	# Take the current ID and use pipe.pl to increment the value.
 	# If that failed then echo a message to STDERR and echo '-1' to STDOUT.
