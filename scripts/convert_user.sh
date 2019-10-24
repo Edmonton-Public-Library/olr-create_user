@@ -44,12 +44,12 @@
 ## The Node.js server will serialize data of users to be created into a file.
 ## Find this script and convert to flat user (web service-usable format),
 ## and load via appropriate mechanism. See create_user.py for conversion functions.
-echo $HOME
+echo "Running $HOME/OnlineRegistration/olr-create-user/scripts/convert_user.sh"
 DATE_NOW=$(date '+%Y%m%d%H%M%S')  # Looks like: 20171214164754
 WORK_DIR=$HOME/OnlineRegistration/olr-create_user
 PY_CONVERTER=$WORK_DIR/scripts/create_user.py
 JSON_TO_FLAT_USER=$WORK_DIR/incoming/user.$DATE_NOW.flat
-LOG=$WORK_DIR/create_user.log
+#LOG=$WORK_DIR/create_user.log
 TEST_ILS="sirsi@edpl-t.library.ualberta.ca"  # Test server is default ILS to write to.
 PROD_ILS="sirsi@eplapp.library.ualberta.ca"  # Production server is default ILS to write to.
 SERVER="$TEST_ILS"                           # Current server target.
@@ -65,21 +65,21 @@ then
 fi
 cd $WORK_DIR
 for json_file in $(ls $WORK_DIR/incoming/*.data 2>/dev/null); do
-	/usr/bin/python $PY_CONVERTER -j $json_file 2>>$LOG >>$JSON_TO_FLAT_USER
+  echo "processing $json_file"
+	/usr/bin/python $PY_CONVERTER -j $json_file >>$JSON_TO_FLAT_USER
 	if [ -s "$JSON_TO_FLAT_USER" ]; then
-		echo "[$DATE_NOW] removing $json_file" >>$LOG
+		echo "[$DATE_NOW] removing $json_file"
 		rm $json_file
 	else
-		echo "[$DATE_NOW] ** error converting $json_file to $JSON_TO_FLAT_USER" >>$LOG
+		echo "[$DATE_NOW] ** error converting $json_file to $JSON_TO_FLAT_USER"
 	fi
 done
 # Now if there are any flat files create now or in the past, scp them over.
 for flat_file in $(ls $WORK_DIR/incoming/*.flat 2>/dev/null); do
 	# move converted user to incoming directory for loading on ILS.
-	if scp $flat_file $SERVER:$REMOTE_DIR >>$LOG
+	if scp $flat_file $SERVER:$REMOTE_DIR
 	then
-		echo "[$DATE_NOW] removing $flat_file after successfully scping to $SERVER:$REMOTE_DIR" >>$LOG
-		# Once done, add it to the duplicate user database.
+		echo "[$DATE_NOW] removing $flat_file after successfully scping to $SERVER:$REMOTE_DIR"		# Once done, add it to the duplicate user database.
 		# Before we remove the successful flat file, let's use the data in it to update duplicate user database.
         # UKEY|FNAME|LNAME|EMAIL|DOB|
 		# Will convert into the following.
@@ -99,7 +99,7 @@ for flat_file in $(ls $WORK_DIR/incoming/*.flat 2>/dev/null); do
 		rm $flat_file
 		rm $WORK_DIR/tmp.$$
 	else
-		echo "[$DATE_NOW] ** error scp $flat_file" >>$LOG
+		echo "[$DATE_NOW] ** error scp $flat_file"
 	fi
 done
 exit 0

@@ -52,10 +52,10 @@ const start = function() {
   console.log(`Start monitoring folder: ${folder}`);
 
   fs.watch(folder).on('change', (eventType, filename) => {
-  	console.log(`On change: ${JSON.stringify(eventType)} - ${JSON.stringify(filename)}`);
-  	if (eventType === 'change') {
+  	console.log(`${new Date()} On change: ${JSON.stringify(eventType)} - ${JSON.stringify(filename)}`);
+  	if (eventType === 'change' && filename.endsWith('.data')) {
   		setImmediate(() => {
-  			exec(`${runscript}`, (err, stdout, stderr) => {
+  			exec(`sh ${runscript}`, (err, stdout, stderr) => {
           if (err) {
             errorHandler(err, stderr);
             // console.log(error);
@@ -63,6 +63,7 @@ const start = function() {
             // process.exit(1);
           } else {
             console.log(stdout);
+            console.log(stderr);
           }
   			}); // exec
   		}); // setImmediate
