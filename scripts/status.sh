@@ -32,9 +32,13 @@ VERSION="0.1"
 ### This script will send a seluser request, which will test pathing to all SirsiDynix executables.
 ### All calls must have explicit exit code to trigger the node.js exec.on('exit', function(code)) to run.
 USER_ID=21221012345678
-TEST_ILS="sirsi@edpl-t.library.ualberta.ca"  # Test server is default ILS to write to.
-PROD_ILS="sirsi@eplapp.library.ualberta.ca"  # Production server is default ILS to write to.
-SERVER="$TEST_ILS"                           # Current server target.
+[[ -z "${DEPLOY_ENV}" ]] && DEPLOY_ENV='dev'
+if [[ "$DEPLOY_ENV" == "prod" ]]; then
+  SERVER=sirsi@eplapp.library.ualberta.ca
+else
+  SERVER=sirsi@edpl-t.library.ualberta.ca
+fi
+echo "Connecting to $SERVER"
 OUT=$HOME/OnlineRegistration/olr-create_user/scripts/out.log
 ERR=$HOME/OnlineRegistration/olr-create_user/scripts/err.log
 cd $HOME/OnlineRegistration/olr-create_user/scripts

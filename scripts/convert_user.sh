@@ -49,10 +49,13 @@ DATE_NOW=$(date '+%Y%m%d%H%M%S')  # Looks like: 20171214164754
 WORK_DIR=$HOME/OnlineRegistration/olr-create_user
 PY_CONVERTER=$WORK_DIR/scripts/create_user.py
 JSON_TO_FLAT_USER=$WORK_DIR/incoming/user.$DATE_NOW.flat
-#LOG=$WORK_DIR/create_user.log
-TEST_ILS="sirsi@edpl-t.library.ualberta.ca"  # Test server is default ILS to write to.
-PROD_ILS="sirsi@eplapp.library.ualberta.ca"  # Production server is default ILS to write to.
-SERVER="$TEST_ILS"                           # Current server target.
+[[ -z "${DEPLOY_ENV}" ]] && DEPLOY_ENV='dev'
+if [[ "$DEPLOY_ENV" == "prod" ]]; then
+  SERVER=sirsi@eplapp.library.ualberta.ca
+else
+  SERVER=sirsi@edpl-t.library.ualberta.ca
+fi
+echo "Connecting to $SERVER"
 REMOTE_DIR=/s/sirsi/Unicorn/EPLwork/cronjobscripts/OnlineRegistration/Incoming
 PY_SCRIPT_DIR=$HOME/OnlineRegistration/olr-duplicate_user/scripts/duplicate_user.py
 VERSION="1.0"
