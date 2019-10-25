@@ -7,12 +7,12 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -33,7 +33,7 @@ SU_HOME=/s/sirsi/Unicorn/EPLwork/cronjobscripts/OnlineRegistration
 # This script features the ability to collect new users since the last time it ran.
 # We save a file with today's date, and then use that with -f on seluser.
 DATE_FILE=$SU_HOME/last.run
-# Is it better to discribe the groups that you don't want. If we take the list of 
+# Is it better to discribe the groups that you don't want. If we take the list of
 # user profiles we want - to start off with - then not them against all profiles,
 # We end up with an ever increasing list of profiles we don't want, but by negating
 # that selection we end up with new desireable profiles as well.
@@ -56,7 +56,7 @@ else # Never been run.
 	# 1466892|Hani|Abdikadir Odawa|haniabdikadir123gmailcom|1999-01-01|
 fi
 # That is for all users, but on update we just want the user since the last time we did this. In that case
-# we will save the date last run as a zero-byte file.   
+# we will save the date last run as a zero-byte file.
 DATE_TODAY=$(transdate -d-0)
 echo "$DATE_TODAY" > $DATE_FILE
 # EOF
