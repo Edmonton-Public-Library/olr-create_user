@@ -64,7 +64,14 @@ then
 	exit -1
 fi
 cd $WORK_DIR
-for json_file in $(ls $WORK_DIR/incoming/*.data 2>/dev/null); do
+if [ -z "$1" ]; then
+  echo process all files
+  JSON_FILES=$(ls $WORK_DIR/incoming/*.data 2>/dev/null);
+else
+  echo only process $1
+  JSON_FILES=($1)
+fi
+for json_file in $JSON_FILES; do
   echo "processing $json_file"
 	/usr/bin/python $PY_CONVERTER -j $json_file >>$JSON_TO_FLAT_USER
 	if [ -s "$JSON_TO_FLAT_USER" ]; then

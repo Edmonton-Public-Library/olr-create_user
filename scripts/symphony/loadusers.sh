@@ -1,7 +1,7 @@
 #!/bin/bash
 ##################################################################################
 #
-# Loads online registration customers. 
+# Loads online registration customers.
 #
 # Creates users on the ILS using loadflatuser.
 #    Copyright (C) 2017  Andrew Nisbet
@@ -10,12 +10,12 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -23,11 +23,11 @@
 #
 # Author:  Andrew Nisbet, Edmonton Public Library
 # Copyright (c) Thu Feb 23 16:22:30 MST 2017
-# Rev: 
-#           
-#          0.2 - Save flat information loaded for reference checks. 
-#          0.1 - Cut-over version for production. 
-#          0.0 - Dev. 
+# Rev:
+#
+#          0.2 - Save flat information loaded for reference checks.
+#          0.1 - Cut-over version for production.
+#          0.0 - Dev.
 #
 ##############################################################################
 ### Checks the Incoming directory and loads any flat files it finds.
@@ -36,18 +36,24 @@
 DATE_NOW=$(date '+%Y-%m-%d %H:%M:%S')
 ANSI_DATE=$(date '+%Y%m%d')
 WORK_DIR=/s/sirsi/Unicorn/EPLwork/cronjobscripts/OnlineRegistration
-LOG=$WORK_DIR/load.log
 ERR=$WORK_DIR/load_user.err
 KEYS=$WORK_DIR/load_user.keys
 FLAT_LOADED_SO_FAR=$WORK_DIR/loaded_users.flat
 cd $WORK_DIR
-for flat_customer in $(ls $WORK_DIR/Incoming/*.flat 2>/dev/null); do 
+if [ -z "$1" ]; then
+  echo process all files
+  FLAT_FILES=$(ls $WORK_DIR/Incoming/*.flat 2>/dev/null);
+else
+  echo only process $1
+  FLAT_FILES=($1)
+fi
+for flat_customer in $FLAT_FILES; do
 	retain_flat_file=0
-	echo "[$DATE_NOW] loading $flat_customer" >>$LOG
+	echo "[$DATE_NOW] loading $flat_customer"
 	for user_id in $(cat $flat_customer | pipe.pl -gc0:USER_ID -oc1 -mc1:_#); do
-		echo "[$DATE_NOW] attempt load $user_id" >>$LOG
+		echo "[$DATE_NOW] attempt load $user_id"
 	done
-	# The line below loads the customer data, and may need to be adapted if 
+	# The line below loads the customer data, and may need to be adapted if
 	# the website submits customer information with a preferred library.
 	## Add a user.
 	# loadFlatUserCreate.add("loadflatuser");
@@ -58,7 +64,7 @@ for flat_customer in $(ls $WORK_DIR/Incoming/*.flat 2>/dev/null); do
 	# loadFlatUserCreate.add("-n"); // Turn off BRS checking if -n is used.
 	# loadFlatUserCreate.add("-y\"" + homeLibrary + "\"");
 	## loadFlatUserCreate.add("-d"); // write syslog. check Unicorn/Logs/error for results.
-	# Update user command. 
+	# Update user command.
 	# loadFlatUserUpdate = new ArrayList<>();
 	# loadFlatUserUpdate.add("loadflatuser");
 	# loadFlatUserUpdate.add("-aR"); // replace base information
@@ -79,29 +85,29 @@ for flat_customer in $(ls $WORK_DIR/Incoming/*.flat 2>/dev/null); do
 	# cat $flat_customer | loadflatuser -aU -bU -l"ADMIN|PCGUI-DISP" -mc -n -y"EPLMNA" -d 2>>$ERR >>$KEYS
 	## Update
 	# cat $flat_customer | loadflatuser -aR -bR -l"ADMIN|PCGUI-DISP" -mu -n -y"EPLMNA" -d 2>$ERR >$KEYS
-	grep -e"\*\*error|\*\*USER|oralib" $ERR >>$LOG
-	for line in $(grep "error number 111" $ERR 2>/dev/null); do 
+	grep -e"\*\*error|\*\*USER|oralib" $ERR
+	for line in $(grep "error number 111" $ERR 2>/dev/null); do
 		retain_flat_file=1
-		echo "[$DATE_NOW] failed load: $line" >>$LOG
-	done 
-	status=$(grep 1402 $ERR 2>/dev/null) 
+		echo "[$DATE_NOW] failed load: $line"
+	done
+	status=$(grep 1402 $ERR 2>/dev/null)
     #  1 $<new> $<user> $(1419) ## if customer is created or new user.
     #  0 $<new> $<user> $(1419) ## if customer already exists.
-	echo "[$DATE_NOW] status '$status'" >>$LOG
+	echo "[$DATE_NOW] status '$status'"
 	if [ "$retain_flat_file" ] && [ ! -z "$status" ]; then
 		cat $flat_customer >>$FLAT_LOADED_SO_FAR
-		echo "[$DATE_NOW] removing file: $flat_customer" >>$LOG
+		echo "[$DATE_NOW] removing file: $flat_customer"
 		rm $flat_customer
 	else
-		echo "[$DATE_NOW] moving file: $flat_customer => $WORK_DIR/Failed/failed_customer_$ANSI_DATE.flat" >>$LOG
+		echo "[$DATE_NOW] moving file: $flat_customer => $WORK_DIR/Failed/failed_customer_$ANSI_DATE.flat"
 		cat $flat_customer >>$WORK_DIR/Failed/failed_customer_$ANSI_DATE.flat
         #### Uncomment this code if you want to see messages whenever a registration fails, but you might get one-per-minute.
         # echo "$WORK_DIR/Failed/failed_customer_$ANSI_DATE.flat file failed to load via OLR! reload it from command line: loadflatuser -aU -bU -l'ADMIN|PCGUI-DISP' -mc -n -y'EPLMNA' -d" | mailx -s"**Failed OLR registration." andrew.nisbet@epl.ca
         # exit 1
 	fi
-	rm $KEYS
-	rm $ERR
-	echo "[$DATE_NOW] ==" >>$LOG
+	rm $KEYS 2>/dev/null
+	rm $ERR 2>/dev/null
+	echo "[$DATE_NOW] =="
 done
 exit 0
 # EOF

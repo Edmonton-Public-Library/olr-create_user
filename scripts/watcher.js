@@ -71,7 +71,7 @@ const start = function() {
           console.log(stdout);
           console.log(stderr);
         }
-			}); // exec
+  		}); // exec
     }) // onAdd
     .on('change', (path) => console.log(`${new Date().toISOString()}: File ${path} has been changed`))
     .on('unlink', (path) => console.log(`${new Date().toISOString()}: File ${path} has been removed`));
