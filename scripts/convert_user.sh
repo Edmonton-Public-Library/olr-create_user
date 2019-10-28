@@ -48,7 +48,6 @@ echo "Running $HOME/OnlineRegistration/olr-create-user/scripts/convert_user.sh"
 DATE_NOW=$(date '+%Y%m%d%H%M%S')  # Looks like: 20171214164754
 WORK_DIR=$HOME/OnlineRegistration/olr-create_user
 PY_CONVERTER=$WORK_DIR/scripts/create_user.py
-JSON_TO_FLAT_USER=$WORK_DIR/incoming/user.$DATE_NOW.flat
 [[ -z "${DEPLOY_ENV}" ]] && DEPLOY_ENV='dev'
 if [[ "$DEPLOY_ENV" == "prod" ]]; then
   SERVER=sirsi@eplapp.library.ualberta.ca
@@ -76,12 +75,13 @@ else
 fi
 for json_file in $JSON_FILES; do
   echo "processing $json_file"
-	/usr/bin/python $PY_CONVERTER -j $json_file >>$JSON_TO_FLAT_USER
-	if [ -s "$JSON_TO_FLAT_USER" ]; then
+  flat_user_file=$WORK_DIR/incoming/user.$(date '+%Y%m%d%H%M%S%N').flat
+	/usr/bin/python $PY_CONVERTER -j $json_file >>$flat_user_file
+	if [ -s "$flat_user_file" ]; then
 		echo "[$DATE_NOW] removing $json_file"
 		rm $json_file
 	else
-		echo "[$DATE_NOW] ** error converting $json_file to $JSON_TO_FLAT_USER"
+		echo "[$DATE_NOW] ** error converting $json_file to $flat_user_file"
 	fi
 done
 # Now if there are any flat files create now or in the past, scp them over.

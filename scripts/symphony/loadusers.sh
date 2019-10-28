@@ -36,8 +36,6 @@
 DATE_NOW=$(date '+%Y-%m-%d %H:%M:%S')
 ANSI_DATE=$(date '+%Y%m%d')
 WORK_DIR=/s/sirsi/Unicorn/EPLwork/cronjobscripts/OnlineRegistration
-ERR=$WORK_DIR/load_user.err
-KEYS=$WORK_DIR/load_user.keys
 FLAT_LOADED_SO_FAR=$WORK_DIR/loaded_users.flat
 cd $WORK_DIR
 if [ -z "$1" ]; then
@@ -49,6 +47,9 @@ else
 fi
 for flat_customer in $FLAT_FILES; do
 	retain_flat_file=0
+  id=$(date '+%Y%m%d%H%M%S%N')
+  output_result=$WORK_DIR/load_user_$id.txt
+  output_key=$WORK_DIR/load_user_$id.keys
 	echo "[$DATE_NOW] loading $flat_customer"
 	for user_id in $(cat $flat_customer | pipe.pl -gc0:USER_ID -oc1 -mc1:_#); do
 		echo "[$DATE_NOW] attempt load $user_id"
@@ -80,17 +81,17 @@ for flat_customer in $FLAT_FILES; do
     # the -mb (default) causes the account, and only the fields in the brief record, to be updated.
     # From this experiment I modify the below command to remove the -m flag all together.
     ## Create if account doesn't exist and flat file is not a brief record, update otherwise.
-    cat $flat_customer | loadflatuser -aU -bU -l"ADMIN|PCGUI-DISP" -n -y"EPLMNA" -d 2>>$ERR >>$KEYS
+    cat $flat_customer | loadflatuser -aU -bU -l"ADMIN|PCGUI-DISP" -n -y"EPLMNA" -d 2>>$output_result >>$output_key
 	## Create
-	# cat $flat_customer | loadflatuser -aU -bU -l"ADMIN|PCGUI-DISP" -mc -n -y"EPLMNA" -d 2>>$ERR >>$KEYS
+	# cat $flat_customer | loadflatuser -aU -bU -l"ADMIN|PCGUI-DISP" -mc -n -y"EPLMNA" -d 2>>$output_result >>$output_key
 	## Update
-	# cat $flat_customer | loadflatuser -aR -bR -l"ADMIN|PCGUI-DISP" -mu -n -y"EPLMNA" -d 2>$ERR >$KEYS
-	grep -e"\*\*error|\*\*USER|oralib" $ERR
-	for line in $(grep "error number 111" $ERR 2>/dev/null); do
+	# cat $flat_customer | loadflatuser -aR -bR -l"ADMIN|PCGUI-DISP" -mu -n -y"EPLMNA" -d 2>$output_result >$output_key
+	grep -e"\*\*error|\*\*USER|oralib" $output_result
+	for line in $(grep "error number 111" $output_result 2>/dev/null); do
 		retain_flat_file=1
 		echo "[$DATE_NOW] failed load: $line"
 	done
-	status=$(grep 1402 $ERR 2>/dev/null)
+	status=$(grep 1402 $output_result 2>/dev/null)
     #  1 $<new> $<user> $(1402) ## if customer is created or new user.
     #  0 $<new> $<user> $(1419) ## if customer already exists.
 	echo "[$DATE_NOW] status '$status'"
@@ -105,8 +106,8 @@ for flat_customer in $FLAT_FILES; do
         # echo "$WORK_DIR/Failed/failed_customer_$ANSI_DATE.flat file failed to load via OLR! reload it from command line: loadflatuser -aU -bU -l'ADMIN|PCGUI-DISP' -mc -n -y'EPLMNA' -d" | mailx -s"**Failed OLR registration." andrew.nisbet@epl.ca
         # exit 1
 	fi
-	rm $KEYS 2>/dev/null
-	rm $ERR 2>/dev/null
+	rm $output_key 2>/dev/null
+	rm $output_result 2>/dev/null
 	echo "[$DATE_NOW] =="
 done
 exit 0
