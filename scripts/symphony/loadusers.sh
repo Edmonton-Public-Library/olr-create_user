@@ -91,7 +91,7 @@ for flat_customer in $FLAT_FILES; do
 		echo "[$DATE_NOW] failed load: $line"
 	done
 	status=$(grep 1402 $ERR 2>/dev/null)
-    #  1 $<new> $<user> $(1419) ## if customer is created or new user.
+    #  1 $<new> $<user> $(1402) ## if customer is created or new user.
     #  0 $<new> $<user> $(1419) ## if customer already exists.
 	echo "[$DATE_NOW] status '$status'"
 	if [ "$retain_flat_file" ] && [ ! -z "$status" ]; then
