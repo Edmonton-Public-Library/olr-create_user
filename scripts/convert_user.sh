@@ -100,7 +100,7 @@ for flat_file in $(ls $WORK_DIR/incoming/*.flat 2>/dev/null); do
 		#
 		# Parse out the info we need to make a load-able json file for duplicate_user.py
 		# Get the user ids (as keys since they don't have real keys yet on the ILS)|FNAME|LNAME|EMAIL|DOB|
-		cat $flat_file | pipe.pl -g'c0:USER_ID|FIRST_NAME|LAST_NAME|EMAIL' -oc1 -mc1:_# -P -H >$WORK_DIR/tmp.$$
+		cat $flat_file | pipe.pl -g'c0:USER_ID|FIRST_NAME|LAST_NAME|BIRTH_DATE|EMAIL' -oc1 -mc1:_# -P -H >$WORK_DIR/tmp.$$
 		/usr/bin/python $PY_SCRIPT_DIR -b$WORK_DIR/tmp.$$
 		# Even if the above fails, all it means is the duplciate data base doesn't get updated.
 		# still remove the flat file, all new customers created since the last time fetch_new_users.sh
