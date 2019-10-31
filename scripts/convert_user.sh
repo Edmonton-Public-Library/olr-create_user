@@ -91,9 +91,9 @@ for flat_file in $(ls $WORK_DIR/incoming/*.flat 2>/dev/null); do
 	then
 		echo "[$DATE_NOW] removing $flat_file after successfully scping to $SERVER:$REMOTE_DIR"		# Once done, add it to the duplicate user database.
 		# Before we remove the successful flat file, let's use the data in it to update duplicate user database.
-        # UKEY|FNAME|LNAME|EMAIL|DOB|
+        # UKEY|FNAME|LNAME|BIRTH_DATE|EMAIL|
 		# Will convert into the following.
-        # 1385638|Bonita|Guler|bonitas.92@hotmail.com|1974-01-06|
+        # 1385638|Bonita|Guler|19740106|bonitas.92@hotmail.com|
 		# {"index": {"_id": "1385638"}}
 		# {"lname": "Guler", "dob": "1974-01-06", "email": "bonitas.92@hotmail.com", "fname": "Bonita"}
 		# This code is taken from sample_users.sh in /s/sirsi/Unicorn/EPLwork/cronjobscripts/OnlineRegistration.

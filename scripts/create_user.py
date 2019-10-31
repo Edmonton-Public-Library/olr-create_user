@@ -118,7 +118,7 @@ class Customer:
         '.USER_LIBRARY.   |aEPLMNA\n'
         '.USER_PRIV_EXPIRES.   |a' + str(self.expire) + '\n'
         '.USER_PRIV_GRANTED.   |a' + str(self.today) + '\n'
-        '.USER_BIRTH_DATE.   |a' + str(self.json['USER_BIRTH_DATE']) + '\n'
+        '.USER_BIRTH_DATE.   |a' + str(self.json['USER_BIRTH_DATE']).replace("-", "") + '\n' # strip - if needed
         '.USER_CATEGORY2.   |a' + str(self.json['USER_CATEGORY2']) + '\n'
         '.USER_ADDR1_BEGIN.\n'
         '.CARE/OF.   |a' + str(self.json['CARE_OF']) + '\n'
