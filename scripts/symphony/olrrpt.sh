@@ -39,7 +39,7 @@ source /s/sirsi/Unicorn/EPLwork/cronjobscripts/setscriptenvironment.sh
 #######################################################################
 VERSION="0.7"   # Fix directory tests, change sort so non emailed duplicate accounts are listed for removal.
 TMP=$(getpathname tmp)
-ADDRESSES="beryl.tseng@epl.ca"
+ADDRESSES="ILSAdmins@EPL.CA"
 WORK_DIR=/s/sirsi/Unicorn/EPLwork/cronjobscripts/OnlineRegistration/Rpt
 RPT_SELECTION=$WORK_DIR/olr.users
 RPT_NAME=olr_report.csv
