@@ -35,6 +35,7 @@ import os
 import sys
 import getopt
 import json
+import io
 ## open the file and ensure it contains good user data create a formatted flat user file of all
 ## valid customers, then zero out the file to ensure we don't load same user data again.
 ## This script is expecting customer data in the form of:
@@ -99,35 +100,52 @@ class Customer:
     def __repr__(self):
         self.__str__()
     def __str__(self):
-        flat_customer = ('*** DOCUMENT BOUNDARY ***\n'
-        'FORM=LDUSER\n'
-		'.USER_ID.   |a' + str(self.json['USER_ID']) + '\n'
-        '.USER_ACCESS.   |aPUBLIC\n'
-        '.USER_STATUS.   |aOK\n'
-        '.USER_CHG_HIST_RULE.   |aCIRCRULE\n'
-        '.USER_MAILINGADDR.   |a1\n'
-        '.USER_ROUTING_FLAG.   |aY\n'
-        '.USER_CATEGORY5.   |aECONSENT\n'
-        '.USER_ENVIRONMENT.   |aPUBLIC\n'
-		'.USER_FIRST_NAME.   |a' + str(self.json['USER_FIRST_NAME']) + '\n'
-		'.USER_LAST_NAME.   |a' + str(self.json['USER_LAST_NAME']) + '\n'
-        '.USER_PREFERRED_NAME.   |a' + str(self.json['USER_LAST_NAME']).upper() + ', ' + str(self.json['USER_FIRST_NAME']).upper() + '\n'
-        '.USER_PREF_LANG.   |aENGLISH\n'
-        '.USER_PIN.   |a' + str(self.json['USER_PIN']) + '\n'
-        '.USER_PROFILE.   |a' + str(self.profile) + '\n'
-        '.USER_LIBRARY.   |aEPLMNA\n'
-        '.USER_PRIV_EXPIRES.   |a' + str(self.expire) + '\n'
-        '.USER_PRIV_GRANTED.   |a' + str(self.today) + '\n'
-        '.USER_BIRTH_DATE.   |a' + str(self.json['USER_BIRTH_DATE']).replace("-", "") + '\n' # strip - if needed
-        '.USER_CATEGORY2.   |a' + str(self.json['USER_CATEGORY2']) + '\n'
-        '.USER_ADDR1_BEGIN.\n'
-        '.CARE/OF.   |a' + str(self.json['CARE_OF']) + '\n'
-        '.EMAIL.   |a' + str(self.json['EMAIL']) + '\n'
-        '.POSTALCODE.   |a' + str(self.json['ADDRESS']['POSTALCODE']) + '\n'
-        '.PHONE.   |a' + str(self.json['PHONE']) + '\n'
-        '.STREET.   |a' + str(self.json['ADDRESS']['STREET']) + '\n'
-        '.CITY/STATE.   |a' + str(self.json['ADDRESS']['CITY_STATE']) + '\n'
-        '.USER_ADDR1_END.\n'
+        flat_customer = """*** DOCUMENT BOUNDARY ***
+FORM=LDUSER
+.USER_ID.   |a{USER_ID}
+.USER_ACCESS.   |aPUBLIC
+.USER_STATUS.   |aOK
+.USER_CHG_HIST_RULE.   |aCIRCRULE
+.USER_MAILINGADDR.   |a1
+.USER_ROUTING_FLAG.   |aY
+.USER_CATEGORY5.   |aECONSENT
+.USER_ENVIRONMENT.   |aPUBLIC
+.USER_FIRST_NAME.   |a{USER_FIRST_NAME}
+.USER_LAST_NAME.   |a{USER_LAST_NAME}
+.USER_PREFERRED_NAME.   |a{USER_PREFERRED_LAST_NAME}, {USER_PREFERRED_FIRST_NAME}
+.USER_PREF_LANG.   |aENGLISH
+.USER_PIN.   |a{USER_PIN}
+.USER_PROFILE.   |a{USER_PROFILE}
+.USER_LIBRARY.   |aEPLMNA
+.USER_PRIV_EXPIRES.   |a{USER_PRIV_EXPIRES}
+.USER_PRIV_GRANTED.   |a{USER_PRIV_GRANTED}
+.USER_BIRTH_DATE.   |a{USER_BIRTH_DATE}
+.USER_CATEGORY2.   |a{USER_CATEGORY2}
+.USER_ADDR1_BEGIN.
+.CARE/OF.   |a{CARE_OF}
+.EMAIL.   |a{EMAIL}
+.POSTALCODE.   |a{POSTALCODE}
+.PHONE.   |a{PHONE}
+.STREET.   |a{STREET}
+.CITY/STATE.   |a{CITY_STATE}
+.USER_ADDR1_END.""".format(
+            USER_ID=self.json['USER_ID'].encode('utf-8'),
+            USER_FIRST_NAME=self.json['USER_FIRST_NAME'].encode('utf-8'),
+            USER_LAST_NAME=self.json['USER_LAST_NAME'].encode('utf-8'),
+            USER_PREFERRED_LAST_NAME=self.json['USER_LAST_NAME'].encode('utf-8').upper(),
+            USER_PREFERRED_FIRST_NAME=self.json['USER_FIRST_NAME'].encode('utf-8').upper(),
+            USER_PIN=self.json['USER_PIN'].encode('utf-8'),
+            USER_PROFILE=self.profile.encode('utf-8'),
+            USER_PRIV_EXPIRES=self.expire.encode('utf-8'),
+            USER_PRIV_GRANTED=self.today.encode('utf-8'),
+            USER_BIRTH_DATE=self.json['USER_BIRTH_DATE'].replace("-", "").encode('utf-8'),
+            USER_CATEGORY2=self.json['USER_CATEGORY2'].encode('utf-8'),
+            CARE_OF=self.json['CARE_OF'].encode('utf-8'),
+            EMAIL=self.json['EMAIL'].encode('utf-8'),
+            POSTALCODE=self.json['ADDRESS']['POSTALCODE'].encode('utf-8'),
+            PHONE=self.json['PHONE'].encode('utf-8'),
+            STREET=self.json['ADDRESS']['STREET'].encode('utf-8'),
+            CITY_STATE=self.json['ADDRESS']['CITY_STATE'].encode('utf-8')
         )
         return flat_customer
 
@@ -158,8 +176,7 @@ def main(argv):
         json_data = Path(customer_json_file)
         if json_data.is_file():
             with open(customer_json_file) as json_file:
-                lines = json_file.readlines()
-                for line in lines:
+                for line in json_file:
                     # [{"PHONE":"403-444-1258","USER_FIRST_NAME":"Sylvia","USER_BIRTH_DATE":19610519,"POSTALCODE":"T6M 2M3","CARE_OF":"","CITY_STATE":"Edmonton, AB","EMAIL":"jd@jdlien.com","STREET":"1503 Wellwood Way NW","USER_PIN":"gtk6358","USER_CATEGORY2":"F","USER_LAST_NAME":"Crowley"},{"USER_FIRST_NAME":"Crowley","CARE_OF":"Sylvia Crowley","CITY_STATE":"Edmonton, AB","STREET":"1503 Wellwood Way NW","USER_PIN":"yvy5167","USER_CATEGORY2":"M","PHONE":"403-444-1258","USER_BIRTH_DATE":20050103,"POSTALCODE":"T6M 2M3","CITYONLY":"Edmonton","APARTMENTONLY":"","EMAIL":"jd@jdlien.com","PROVINCEONLY":"AB","ADDRESSONLY":"1503 Wellwood Way NW"}]
                     # The example shows one customer, but child accounts can be added to the JSON array.
                     # Iterate over the array of customer data and pull out each customer.
@@ -167,8 +184,8 @@ def main(argv):
                     for customer_json in json_customer_data:
                         # sys.stderr.write('{0}\n'.format(customer_json))
                         customer = Customer(customer_json)
-                        sys.stderr.write('{0}'.format(customer))
-                        sys.stdout.write('{0}'.format(customer))
+                        print customer
+                        #sys.stdout.write('{0}'.format(customer))
                         # sys.exit(0)
         else:
             sys.stderr.write('** error, JSON customer data file {0} missing.\n'.format(customer_json_file))
