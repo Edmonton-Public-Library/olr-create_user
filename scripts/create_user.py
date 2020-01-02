@@ -61,7 +61,9 @@ class Customer:
         # 'APARTMENTONLY': '',
         # 'PROVINCEONLY': 'AB',
         # 'USER_BIRTH_DATE': 20090918,
-        # 'USER_AGE': 7
+        # 'USER_AGE': 7,
+        # 'USER_CATEGORY1': 'ERCS',
+        # 'NOTE': 'Any requested change to this account must be referred to the branch Community Librarian or Manager'
         # }
         # Convert the customer to flat format.
         # *** DOCUMENT BOUNDARY ***
@@ -89,6 +91,11 @@ class Customer:
         # .CITY/STATE.   |aPonoka, AB
         # .EMAIL.   |axxxxxxxx@hotmail.com
         # .USER_ADDR1_END.
+        # .USER_CATEGORY1.   |aERCS
+        # .USER_XINFO_BEGIN.
+        # .NOTE. |aAny requested change to this account must be referred to the branch Community Librarian or Manager
+        # .USER_XINFO_END.
+        #
         self.expire = 'NEVER'
         p_date = datetime.datetime.now()
         self.today = p_date.strftime("%Y%m%d")
