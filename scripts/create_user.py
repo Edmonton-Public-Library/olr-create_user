@@ -120,7 +120,6 @@ FORM=LDUSER
 .USER_PRIV_EXPIRES.   |a{USER_PRIV_EXPIRES}
 .USER_PRIV_GRANTED.   |a{USER_PRIV_GRANTED}
 .USER_BIRTH_DATE.   |a{USER_BIRTH_DATE}
-.USER_CATEGORY2.   |a{USER_CATEGORY2}
 .USER_ADDR1_BEGIN.
 .CARE/OF.   |a{CARE_OF}
 .EMAIL.   |a{EMAIL}
@@ -139,7 +138,6 @@ FORM=LDUSER
             USER_PRIV_EXPIRES=self.expire.encode('utf-8'),
             USER_PRIV_GRANTED=self.today.encode('utf-8'),
             USER_BIRTH_DATE=str(self.json['USER_BIRTH_DATE']).replace("-", ""),
-            USER_CATEGORY2=self.json['USER_CATEGORY2'].encode('utf-8'),
             CARE_OF=self.json['CARE_OF'].encode('utf-8'),
             EMAIL=self.json['EMAIL'].encode('utf-8'),
             POSTALCODE=self.json['ADDRESS']['POSTALCODE'].encode('utf-8'),
@@ -147,6 +145,26 @@ FORM=LDUSER
             STREET=self.json['ADDRESS']['STREET'].encode('utf-8'),
             CITY_STATE=self.json['ADDRESS']['CITY_STATE'].encode('utf-8')
         )
+        if 'USER_CATEGORY1' in self.json:
+            flat_customer = """{FLAT_CUSTOMER}
+.USER_CATEGORY1.   |a{USER_CATEGORY1}""".format(
+            FLAT_CUSTOMER=flat_customer,
+            USER_CATEGORY1=self.json['USER_CATEGORY1'].encode('utf-8'),
+            )
+        if 'USER_CATEGORY2' in self.json:
+            flat_customer = """{FLAT_CUSTOMER}
+.USER_CATEGORY2.   |a{USER_CATEGORY2}""".format(
+            FLAT_CUSTOMER=flat_customer,
+            USER_CATEGORY2=self.json['USER_CATEGORY2'].encode('utf-8'),
+            )
+        if 'NOTE' in self.json:
+            flat_customer = """{FLAT_CUSTOMER}
+.USER_XINFO_BEGIN.
+.NOTE. |a{NOTE}
+.USER_XINFO_END.""".format(
+            FLAT_CUSTOMER=flat_customer,
+            NOTE=self.json['NOTE'].encode('utf-8'),
+            )
         return flat_customer
 
 def usage():
