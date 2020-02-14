@@ -183,7 +183,7 @@ def main(argv):
                     for customer_json in json_customer_data:
                         # sys.stderr.write('{0}\n'.format(customer_json))
                         customer = Customer(customer_json)
-                        print customer
+                        print(customer)
                         #sys.stdout.write('{0}'.format(customer))
                         # sys.exit(0)
         else:
