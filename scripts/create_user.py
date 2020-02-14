@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ##################################################################################
 #
 # Creates and loads users based on data in file /home/ilsadmin/create_user/scripts.
@@ -24,6 +24,7 @@
 # Author:  Andrew Nisbet, Edmonton Public Library
 # Copyright (c) Thu Feb 23 16:22:30 MST 2017
 # Rev:
+#          0.2 - Remove USER_CATEGORY2.
 #          0.1 - Added missing USER_CATEGORY2, USER_BIRTH_DATE, and reordered for
 #                easy parsing and adding to the duplicate user database.
 #          0.0 - Dev.
@@ -120,7 +121,6 @@ FORM=LDUSER
 .USER_PRIV_EXPIRES.   |a{USER_PRIV_EXPIRES}
 .USER_PRIV_GRANTED.   |a{USER_PRIV_GRANTED}
 .USER_BIRTH_DATE.   |a{USER_BIRTH_DATE}
-.USER_CATEGORY2.   |a{USER_CATEGORY2}
 .USER_ADDR1_BEGIN.
 .CARE/OF.   |a{CARE_OF}
 .EMAIL.   |a{EMAIL}
@@ -139,7 +139,6 @@ FORM=LDUSER
             USER_PRIV_EXPIRES=self.expire.encode('utf-8'),
             USER_PRIV_GRANTED=self.today.encode('utf-8'),
             USER_BIRTH_DATE=str(self.json['USER_BIRTH_DATE']).replace("-", ""),
-            USER_CATEGORY2=self.json['USER_CATEGORY2'].encode('utf-8'),
             CARE_OF=self.json['CARE_OF'].encode('utf-8'),
             EMAIL=self.json['EMAIL'].encode('utf-8'),
             POSTALCODE=self.json['ADDRESS']['POSTALCODE'].encode('utf-8'),
