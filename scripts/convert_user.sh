@@ -4,7 +4,7 @@
 # Coordinates the conversion from JSON to flat, then loads the flat file(s).
 #
 # Creates users on the ILS using loadflatuser.
-#    Copyright (C) 2017  Andrew Nisbet
+#    Copyright (C) 2020  Andrew Nisbet
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 # Author:  Andrew Nisbet, Edmonton Public Library
 # Copyright (c) Thu Feb 23 16:22:30 MST 2017
 # Rev:
+#          0.10 - Remove gender.
 #          0.9 - Add user to duplicate user database.
 #          0.8 - Cut-over for production.
 #          0.7 - Added more reporting to log.
@@ -76,7 +77,7 @@ fi
 for json_file in $JSON_FILES; do
   echo "processing $json_file"
   flat_user_file=$WORK_DIR/incoming/user.$(date '+%Y%m%d%H%M%S%N').flat
-	/usr/bin/python $PY_CONVERTER -j $json_file >>$flat_user_file
+	/usr/bin/python3 $PY_CONVERTER -j $json_file >>$flat_user_file
 	if [ -s "$flat_user_file" ]; then
 		echo "[$DATE_NOW] removing $json_file"
 		rm $json_file
