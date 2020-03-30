@@ -62,7 +62,9 @@ class Customer:
         # 'APARTMENTONLY': '',
         # 'PROVINCEONLY': 'AB',
         # 'USER_BIRTH_DATE': 20090918,
-        # 'USER_AGE': 7
+        # 'USER_AGE': 7,
+        # 'USER_CATEGORY1': 'ERCS',
+        # 'NOTE': 'Any requested change to this account must be referred to the branch Community Librarian or Manager'
         # }
         # Convert the customer to flat format.
         # *** DOCUMENT BOUNDARY ***
@@ -90,6 +92,11 @@ class Customer:
         # .CITY/STATE.   |aPonoka, AB
         # .EMAIL.   |axxxxxxxx@hotmail.com
         # .USER_ADDR1_END.
+        # .USER_CATEGORY1.   |aERCS
+        # .USER_XINFO_BEGIN.
+        # .NOTE. |aAny requested change to this account must be referred to the branch Community Librarian or Manager
+        # .USER_XINFO_END.
+        #
         self.expire = 'NEVER'
         p_date = datetime.datetime.now()
         self.today = p_date.strftime("%Y%m%d")
@@ -139,13 +146,33 @@ FORM=LDUSER
             USER_PRIV_EXPIRES=self.expire,
             USER_PRIV_GRANTED=self.today,
             USER_BIRTH_DATE=str(self.json['USER_BIRTH_DATE']).replace("-", ""),
-            CARE_OF=self.json['CARE_OF'],
-            EMAIL=self.json['EMAIL'],
-            POSTALCODE=self.json['ADDRESS']['POSTALCODE'],
-            PHONE=self.json['PHONE'],
-            STREET=self.json['ADDRESS']['STREET'],
-            CITY_STATE=self.json['ADDRESS']['CITY_STATE']
+            CARE_OF=self.json['CARE_OF'].encode('utf-8'),
+            EMAIL=self.json['EMAIL'].encode('utf-8'),
+            POSTALCODE=self.json['ADDRESS']['POSTALCODE'].encode('utf-8'),
+            PHONE=self.json['PHONE'].encode('utf-8'),
+            STREET=self.json['ADDRESS']['STREET'].encode('utf-8'),
+            CITY_STATE=self.json['ADDRESS']['CITY_STATE'].encode('utf-8')
         )
+        if 'USER_CATEGORY1' in self.json:
+            flat_customer = """{FLAT_CUSTOMER}
+.USER_CATEGORY1.   |a{USER_CATEGORY1}""".format(
+            FLAT_CUSTOMER=flat_customer,
+            USER_CATEGORY1=self.json['USER_CATEGORY1'].encode('utf-8'),
+            )
+        if 'USER_CATEGORY2' in self.json:
+            flat_customer = """{FLAT_CUSTOMER}
+.USER_CATEGORY2.   |a{USER_CATEGORY2}""".format(
+            FLAT_CUSTOMER=flat_customer,
+            USER_CATEGORY2=self.json['USER_CATEGORY2'].encode('utf-8'),
+            )
+        if 'NOTE' in self.json:
+            flat_customer = """{FLAT_CUSTOMER}
+.USER_XINFO_BEGIN.
+.NOTE. |a{NOTE}
+.USER_XINFO_END.""".format(
+            FLAT_CUSTOMER=flat_customer,
+            NOTE=self.json['NOTE'].encode('utf-8'),
+            )
         return flat_customer
 
 def usage():
