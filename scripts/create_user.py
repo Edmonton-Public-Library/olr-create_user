@@ -136,15 +136,14 @@ FORM=LDUSER
 .STREET.   |a{STREET}
 .CITY/STATE.   |a{CITY_STATE}
 .USER_ADDR1_END.""".format(
-            USER_ID=self.json['USER_ID'],
-            USER_FIRST_NAME=self.json['USER_FIRST_NAME'],
-            USER_LAST_NAME=self.json['USER_LAST_NAME'],
-            USER_PREFERRED_LAST_NAME=self.json['USER_LAST_NAME'].upper(),
-            USER_PREFERRED_FIRST_NAME=self.json['USER_FIRST_NAME'].upper(),
-            USER_PIN=self.json['USER_PIN'],
-            USER_PROFILE=self.profile,
-            USER_PRIV_EXPIRES=self.expire,
-            USER_PRIV_GRANTED=self.today,
+            USER_FIRST_NAME=self.json['USER_FIRST_NAME'].encode('utf-8'),
+            USER_LAST_NAME=self.json['USER_LAST_NAME'].encode('utf-8'),
+            USER_PREFERRED_LAST_NAME=self.json['USER_LAST_NAME'].encode('utf-8').upper(),
+            USER_PREFERRED_FIRST_NAME=self.json['USER_FIRST_NAME'].encode('utf-8').upper(),
+            USER_PIN=self.json['USER_PIN'].encode('utf-8'),
+            USER_PROFILE=self.profile.encode('utf-8'),
+            USER_PRIV_EXPIRES=self.expire.encode('utf-8'),
+            USER_PRIV_GRANTED=self.today.encode('utf-8'),
             USER_BIRTH_DATE=str(self.json['USER_BIRTH_DATE']).replace("-", ""),
             CARE_OF=self.json['CARE_OF'].encode('utf-8'),
             EMAIL=self.json['EMAIL'].encode('utf-8'),
