@@ -137,21 +137,21 @@ FORM=LDUSER
 .CITY/STATE.   |a{CITY_STATE}
 .USER_ADDR1_END.""".format(
             USER_ID=self.json['USER_ID'],
-            USER_FIRST_NAME=self.json['USER_FIRST_NAME'],
-            USER_LAST_NAME=self.json['USER_LAST_NAME'],
-            USER_PREFERRED_LAST_NAME=self.json['USER_LAST_NAME'].upper(),
-            USER_PREFERRED_FIRST_NAME=self.json['USER_FIRST_NAME'].upper(),
-            USER_PIN=self.json['USER_PIN'],
-            USER_PROFILE=self.profile,
-            USER_PRIV_EXPIRES=self.expire,
-            USER_PRIV_GRANTED=self.today,
+            USER_FIRST_NAME=self.json['USER_FIRST_NAME'].encode('utf-8'),
+            USER_LAST_NAME=self.json['USER_LAST_NAME'].encode('utf-8'),
+            USER_PREFERRED_LAST_NAME=self.json['USER_LAST_NAME'].encode('utf-8').upper(),
+            USER_PREFERRED_FIRST_NAME=self.json['USER_FIRST_NAME'].encode('utf-8').upper(),
+            USER_PIN=self.json['USER_PIN'].encode('utf-8'),
+            USER_PROFILE=self.profile.encode('utf-8'),
+            USER_PRIV_EXPIRES=self.expire.encode('utf-8'),
+            USER_PRIV_GRANTED=self.today.encode('utf-8'),
             USER_BIRTH_DATE=str(self.json['USER_BIRTH_DATE']).replace("-", ""),
-            CARE_OF=self.json['CARE_OF'],
-            EMAIL=self.json['EMAIL'],
-            POSTALCODE=self.json['ADDRESS']['POSTALCODE'],
-            PHONE=self.json['PHONE'],
-            STREET=self.json['ADDRESS']['STREET'],
-            CITY_STATE=self.json['ADDRESS']['CITY_STATE']
+            CARE_OF=self.json['CARE_OF'].encode('utf-8'),
+            EMAIL=self.json['EMAIL'].encode('utf-8'),
+            POSTALCODE=self.json['ADDRESS']['POSTALCODE'].encode('utf-8'),
+            PHONE=self.json['PHONE'].encode('utf-8'),
+            STREET=self.json['ADDRESS']['STREET'].encode('utf-8'),
+            CITY_STATE=self.json['ADDRESS']['CITY_STATE'].encode('utf-8')
         )
         if 'USER_CATEGORY1' in self.json:
             flat_customer = """{FLAT_CUSTOMER}
