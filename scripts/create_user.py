@@ -62,7 +62,9 @@ class Customer:
         # 'APARTMENTONLY': '',
         # 'PROVINCEONLY': 'AB',
         # 'USER_BIRTH_DATE': 20090918,
-        # 'USER_AGE': 7
+        # 'USER_AGE': 7,
+        # 'USER_CATEGORY1': 'ERCS',
+        # 'NOTE': 'Any requested change to this account must be referred to the branch Community Librarian or Manager'
         # }
         # Convert the customer to flat format.
         # *** DOCUMENT BOUNDARY ***
@@ -90,6 +92,11 @@ class Customer:
         # .CITY/STATE.   |aPonoka, AB
         # .EMAIL.   |axxxxxxxx@hotmail.com
         # .USER_ADDR1_END.
+        # .USER_CATEGORY1.   |aERCS
+        # .USER_XINFO_BEGIN.
+        # .NOTE. |aAny requested change to this account must be referred to the branch Community Librarian or Manager
+        # .USER_XINFO_END.
+        #
         self.expire = 'NEVER'
         p_date = datetime.datetime.now()
         self.today = p_date.strftime("%Y%m%d")
@@ -146,6 +153,26 @@ FORM=LDUSER
             STREET=self.json['ADDRESS']['STREET'],
             CITY_STATE=self.json['ADDRESS']['CITY_STATE']
         )
+        if 'USER_CATEGORY1' in self.json:
+            flat_customer = """{FLAT_CUSTOMER}
+.USER_CATEGORY1.   |a{USER_CATEGORY1}""".format(
+            FLAT_CUSTOMER=flat_customer,
+            USER_CATEGORY1=self.json['USER_CATEGORY1'].encode('utf-8'),
+            )
+        if 'USER_CATEGORY2' in self.json:
+            flat_customer = """{FLAT_CUSTOMER}
+.USER_CATEGORY2.   |a{USER_CATEGORY2}""".format(
+            FLAT_CUSTOMER=flat_customer,
+            USER_CATEGORY2=self.json['USER_CATEGORY2'].encode('utf-8'),
+            )
+        if 'NOTE' in self.json:
+            flat_customer = """{FLAT_CUSTOMER}
+.USER_XINFO_BEGIN.
+.NOTE. |a{NOTE}
+.USER_XINFO_END.""".format(
+            FLAT_CUSTOMER=flat_customer,
+            NOTE=self.json['NOTE'].encode('utf-8'),
+            )
         return flat_customer
 
 def usage():
