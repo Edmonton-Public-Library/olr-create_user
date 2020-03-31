@@ -24,6 +24,7 @@
 # Author:  Andrew Nisbet, Edmonton Public Library
 # Copyright (c) Thu Feb 23 16:22:30 MST 2017
 # Rev:
+#          0.11 - Fix echo and remove code to SCP as watcher.js does this now.
 #          0.10 - Remove gender.
 #          0.9 - Add user to duplicate user database.
 #          0.8 - Cut-over for production.
@@ -58,7 +59,7 @@ fi
 echo "Connecting to $SERVER"
 REMOTE_DIR=/s/sirsi/Unicorn/EPLwork/cronjobscripts/OnlineRegistration/Incoming
 PY_SCRIPT_DIR=$HOME/OnlineRegistration/olr-duplicate_user/scripts/duplicate_user.py
-VERSION="1.0"
+VERSION="0.11"
 
 if  [ ! -s "$PY_CONVERTER" ]
 then
@@ -68,14 +69,14 @@ then
 fi
 cd $WORK_DIR
 if [ -z "$1" ]; then
-  echo process all files
+  echo "[$DATE_NOW] process all files"
   JSON_FILES=$(ls $WORK_DIR/incoming/*.data 2>/dev/null);
 else
-  echo only process $1
+  echo "[$DATE_NOW] only process $1"
   JSON_FILES=($1)
 fi
 for json_file in $JSON_FILES; do
-  echo "processing $json_file"
+  echo "[$DATE_NOW] processing $json_file"
   flat_user_file=$WORK_DIR/incoming/user.$(date '+%Y%m%d%H%M%S%N').flat
 	/usr/bin/python3 $PY_CONVERTER -j $json_file >>$flat_user_file
 	if [ -s "$flat_user_file" ]; then
