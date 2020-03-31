@@ -24,6 +24,7 @@
 # Author:  Andrew Nisbet, Edmonton Public Library
 # Copyright (c) Thu Feb 23 16:22:30 MST 2017
 # Rev:
+#          0.3 - Project converted to use python3.
 #          0.2 - Remove USER_CATEGORY2.
 #          0.1 - Added missing USER_CATEGORY2, USER_BIRTH_DATE, and reordered for
 #                easy parsing and adding to the duplicate user database.
@@ -137,33 +138,33 @@ FORM=LDUSER
 .CITY/STATE.   |a{CITY_STATE}
 .USER_ADDR1_END.""".format(
             USER_ID=self.json['USER_ID'],
-            USER_FIRST_NAME=self.json['USER_FIRST_NAME'].encode('utf-8'),
-            USER_LAST_NAME=self.json['USER_LAST_NAME'].encode('utf-8'),
-            USER_PREFERRED_LAST_NAME=self.json['USER_LAST_NAME'].encode('utf-8').upper(),
-            USER_PREFERRED_FIRST_NAME=self.json['USER_FIRST_NAME'].encode('utf-8').upper(),
-            USER_PIN=self.json['USER_PIN'].encode('utf-8'),
-            USER_PROFILE=self.profile.encode('utf-8'),
-            USER_PRIV_EXPIRES=self.expire.encode('utf-8'),
-            USER_PRIV_GRANTED=self.today.encode('utf-8'),
+            USER_FIRST_NAME=self.json['USER_FIRST_NAME'],
+            USER_LAST_NAME=self.json['USER_LAST_NAME'],
+            USER_PREFERRED_LAST_NAME=self.json['USER_LAST_NAME'].upper(),
+            USER_PREFERRED_FIRST_NAME=self.json['USER_FIRST_NAME'].upper(),
+            USER_PIN=self.json['USER_PIN'],
+            USER_PROFILE=self.profile,
+            USER_PRIV_EXPIRES=self.expire,
+            USER_PRIV_GRANTED=self.today,
             USER_BIRTH_DATE=str(self.json['USER_BIRTH_DATE']).replace("-", ""),
-            CARE_OF=self.json['CARE_OF'].encode('utf-8'),
-            EMAIL=self.json['EMAIL'].encode('utf-8'),
-            POSTALCODE=self.json['ADDRESS']['POSTALCODE'].encode('utf-8'),
-            PHONE=self.json['PHONE'].encode('utf-8'),
-            STREET=self.json['ADDRESS']['STREET'].encode('utf-8'),
-            CITY_STATE=self.json['ADDRESS']['CITY_STATE'].encode('utf-8')
+            CARE_OF=self.json['CARE_OF'],
+            EMAIL=self.json['EMAIL'],
+            POSTALCODE=self.json['ADDRESS']['POSTALCODE'],
+            PHONE=self.json['PHONE'],
+            STREET=self.json['ADDRESS']['STREET'],
+            CITY_STATE=self.json['ADDRESS']['CITY_STATE']
         )
         if 'USER_CATEGORY1' in self.json:
             flat_customer = """{FLAT_CUSTOMER}
 .USER_CATEGORY1.   |a{USER_CATEGORY1}""".format(
             FLAT_CUSTOMER=flat_customer,
-            USER_CATEGORY1=self.json['USER_CATEGORY1'].encode('utf-8'),
+            USER_CATEGORY1=self.json['USER_CATEGORY1'],
             )
         if 'USER_CATEGORY2' in self.json:
             flat_customer = """{FLAT_CUSTOMER}
 .USER_CATEGORY2.   |a{USER_CATEGORY2}""".format(
             FLAT_CUSTOMER=flat_customer,
-            USER_CATEGORY2=self.json['USER_CATEGORY2'].encode('utf-8'),
+            USER_CATEGORY2=self.json['USER_CATEGORY2'],
             )
         if 'NOTE' in self.json:
             flat_customer = """{FLAT_CUSTOMER}
@@ -171,7 +172,7 @@ FORM=LDUSER
 .NOTE. |a{NOTE}
 .USER_XINFO_END.""".format(
             FLAT_CUSTOMER=flat_customer,
-            NOTE=self.json['NOTE'].encode('utf-8'),
+            NOTE=self.json['NOTE'],
             )
         return flat_customer
 
