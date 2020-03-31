@@ -24,6 +24,7 @@
 # Author:  Andrew Nisbet, Edmonton Public Library
 # Copyright (c) Thu Feb 23 16:22:30 MST 2017
 # Rev:
+#          0.3 - Project converted to use python3.
 #          0.2 - Remove USER_CATEGORY2.
 #          0.1 - Added missing USER_CATEGORY2, USER_BIRTH_DATE, and reordered for
 #                easy parsing and adding to the duplicate user database.
