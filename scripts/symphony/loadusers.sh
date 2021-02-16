@@ -31,11 +31,11 @@
 #
 ##############################################################################
 ### Checks the Incoming directory and loads any flat files it finds.
-. /s/sirsi/Unicorn/EPLwork/cronjobscripts/setscriptenvironment.sh
+. /software/EDPL/Unicorn/EPLwork/cronjobscripts/setscriptenvironment.sh
 ################################################################
 DATE_NOW=$(date '+%Y-%m-%d %H:%M:%S')
 ANSI_DATE=$(date '+%Y%m%d')
-WORK_DIR=/s/sirsi/Unicorn/EPLwork/cronjobscripts/OnlineRegistration
+WORK_DIR=/software/EDPL/Unicorn/EPLwork/cronjobscripts/OnlineRegistration
 FLAT_LOADED_SO_FAR=$WORK_DIR/loaded_users.flat
 cd $WORK_DIR
 if [ -z "$1" ]; then
