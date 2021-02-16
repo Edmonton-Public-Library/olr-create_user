@@ -27,9 +27,9 @@
 # without assuming any environment settings and we need to use sirsi's.
 ###############################################
 # *** Edit these to suit your environment *** #
-source /s/sirsi/Unicorn/EPLwork/cronjobscripts/setscriptenvironment.sh
+source /software/EDPL/Unicorn/EPLwork/cronjobscripts/setscriptenvironment.sh
 ###############################################
-SU_HOME=/s/sirsi/Unicorn/EPLwork/cronjobscripts/OnlineRegistration
+SU_HOME=/software/EDPL/Unicorn/EPLwork/cronjobscripts/OnlineRegistration
 # This script features the ability to collect new users since the last time it ran.
 # We save a file with today's date, and then use that with -f on seluser.
 DATE_FILE=$SU_HOME/last.run
