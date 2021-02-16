@@ -52,12 +52,12 @@ WORK_DIR=$HOME/OnlineRegistration/olr-create_user
 PY_CONVERTER=$WORK_DIR/scripts/create_user.py
 [[ -z "${DEPLOY_ENV}" ]] && DEPLOY_ENV='dev'
 if [[ "$DEPLOY_ENV" == "prod" ]]; then
-  SERVER=sirsi@eplapp.library.ualberta.ca
+  SERVER=sirsi@edpl.sirsidynix.net
 else
   SERVER=sirsi@edpl-t.library.ualberta.ca
 fi
 echo "Connecting to $SERVER"
-REMOTE_DIR=/s/sirsi/Unicorn/EPLwork/cronjobscripts/OnlineRegistration/Incoming
+REMOTE_DIR=/software/EDPL/Unicorn/EPLwork/cronjobscripts/OnlineRegistration/Incoming
 PY_SCRIPT_DIR=$HOME/OnlineRegistration/olr-duplicate_user/scripts/duplicate_user.py
 VERSION="0.11"
 
@@ -98,7 +98,7 @@ for flat_file in $(ls $WORK_DIR/incoming/*.flat 2>/dev/null); do
         # 1385638|Bonita|Guler|19740106|bonitas.92@hotmail.com|
 		# {"index": {"_id": "1385638"}}
 		# {"lname": "Guler", "dob": "1974-01-06", "email": "bonitas.92@hotmail.com", "fname": "Bonita"}
-		# This code is taken from sample_users.sh in /s/sirsi/Unicorn/EPLwork/cronjobscripts/OnlineRegistration.
+		# This code is taken from sample_users.sh in /software/EDPL/Unicorn/EPLwork/cronjobscripts/OnlineRegistration.
 		#
 		# Parse out the info we need to make a load-able json file for duplicate_user.py
 		# Get the user ids (as keys since they don't have real keys yet on the ILS)|FNAME|LNAME|EMAIL|DOB|
