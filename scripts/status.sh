@@ -34,7 +34,7 @@ VERSION="0.1"
 USER_ID=21221012345678
 [[ -z "${DEPLOY_ENV}" ]] && DEPLOY_ENV='dev'
 if [[ "$DEPLOY_ENV" == "prod" ]]; then
-  SERVER=sirsi@eplapp.library.ualberta.ca
+  SERVER=sirsi@edpl.sirsidynix.net
 else
   SERVER=sirsi@edpl-t.library.ualberta.ca
 fi
