@@ -54,9 +54,10 @@ PY_CONVERTER=$WORK_DIR/scripts/create_user.py
 if [[ "$DEPLOY_ENV" == "prod" ]]; then
   SERVER=sirsi@edpl.sirsidynix.net
 else
-  SERVER=sirsi@edpl-t.library.ualberta.ca
+  SERVER=sirsi@edpltest.sirsidynix.net
 fi
 echo "Connecting to $SERVER"
+
 REMOTE_DIR=/software/EDPL/Unicorn/EPLwork/cronjobscripts/OnlineRegistration/Incoming
 PY_SCRIPT_DIR=$HOME/OnlineRegistration/olr-duplicate_user/scripts/duplicate_user.py
 VERSION="0.11"

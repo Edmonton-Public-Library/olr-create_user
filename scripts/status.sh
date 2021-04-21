@@ -36,7 +36,7 @@ USER_ID=21221012345678
 if [[ "$DEPLOY_ENV" == "prod" ]]; then
   SERVER=sirsi@edpl.sirsidynix.net
 else
-  SERVER=sirsi@edpl-t.library.ualberta.ca
+  SERVER=sirsi@edpltest.sirsidynix.net
 fi
 echo "Connecting to $SERVER"
 OUT=$HOME/OnlineRegistration/olr-create_user/scripts/out.log

@@ -39,17 +39,17 @@ WORK_DIR=/software/EDPL/Unicorn/EPLwork/cronjobscripts/OnlineRegistration
 FLAT_LOADED_SO_FAR=$WORK_DIR/loaded_users.flat
 cd $WORK_DIR
 if [ -z "$1" ]; then
-  echo process all files
+  echo "process all files"
   FLAT_FILES=$(ls $WORK_DIR/Incoming/*.flat 2>/dev/null);
 else
-  echo only process $1
-  FLAT_FILES=($1)
+  echo "only process $1"
+  FLAT_FILES="$1"
 fi
 for flat_customer in $FLAT_FILES; do
 	retain_flat_file=0
-  id=$(date '+%Y%m%d%H%M%S%N')
-  output_result=$WORK_DIR/load_user_$id.txt
-  output_key=$WORK_DIR/load_user_$id.keys
+    id=$(date '+%Y%m%d%H%M%S%N')
+    output_result=$WORK_DIR/load_user_$id.txt
+    output_key=$WORK_DIR/load_user_$id.keys
 	echo "[$DATE_NOW] loading $flat_customer"
 	for user_id in $(cat $flat_customer | pipe.pl -gc0:USER_ID -oc1 -mc1:_#); do
 		echo "[$DATE_NOW] attempt load $user_id"
@@ -86,7 +86,6 @@ for flat_customer in $FLAT_FILES; do
 	# cat $flat_customer | loadflatuser -aU -bU -l"ADMIN|PCGUI-DISP" -mc -n -y"EPLMNA" -d 2>>$output_result >>$output_key
 	## Update
 	# cat $flat_customer | loadflatuser -aR -bR -l"ADMIN|PCGUI-DISP" -mu -n -y"EPLMNA" -d 2>$output_result >$output_key
-	grep -e"\*\*error|\*\*USER|oralib" $output_result
 	for line in $(grep "error number 111" $output_result 2>/dev/null); do
 		retain_flat_file=1
 		echo "[$DATE_NOW] failed load: $line"
