@@ -4,7 +4,7 @@
 # Creates and loads users based on data in file /home/ilsadmin/create_user/scripts.
 #
 # Fetch the set of new users from the ILS, then zero out the file on success.
-#    Copyright (C) 2023  Andrew Nisbet
+#    Copyright (C) 2017-2023  Andrew Nisbet
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,8 +22,9 @@
 # MA 02110-1301, USA.
 #
 # Author:  Andrew Nisbet, Edmonton Public Library
-# Copyright (c) Thu Feb 23 16:22:30 MST 2017
+# Created: Thu Feb 23 16:22:30 MST 2017
 # Rev:
+#          0.4 - Changed EPL_ADULT to EPL_NOVIDG and EPL_JUV to EPL_JNOVG.
 #          0.3 - Project converted to use python3.
 #          0.2 - Remove USER_CATEGORY2.
 #          0.1 - Added missing USER_CATEGORY2, USER_BIRTH_DATE, and reordered for
