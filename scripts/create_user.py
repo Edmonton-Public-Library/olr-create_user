@@ -4,7 +4,7 @@
 # Creates and loads users based on data in file /home/ilsadmin/create_user/scripts.
 #
 # Fetch the set of new users from the ILS, then zero out the file on success.
-#    Copyright (C) 2020  Andrew Nisbet
+#    Copyright (C) 2023  Andrew Nisbet
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -103,9 +103,9 @@ class Customer:
         self.today = p_date.strftime("%Y%m%d")
         # Test for user age
         if self.json['USER_AGE'] < 18:
-            self.profile = 'EPL_JUV'
+            self.profile = 'EPL_JNOVG'
         else:
-            self.profile = 'EPL_ADULT'
+            self.profile = 'EPL_NOVIDG'
     def __repr__(self):
         self.__str__()
     def __str__(self):
