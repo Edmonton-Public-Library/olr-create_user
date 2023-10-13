@@ -37,7 +37,7 @@ DATE_FILE=$SU_HOME/last.run
 # user profiles we want - to start off with - then not them against all profiles,
 # We end up with an ever increasing list of profiles we don't want, but by negating
 # that selection we end up with new desireable profiles as well.
-DESIREABLE_PROFILES="EPL_ADULT,EPL_JUV,EPL_ADU01,EPL_ADU05,EPL_ADU10,EPL_ADU1FR,EPL_ACCESS,EPL_CONCOR,EPL_CORP,EPL_GMU,EPL_HOME,EPL_JONLIN,EPL_JUV01,EPL_JUV10,EPL_JUV05,EPL_JUVIND,EPL_JUV,EPL_JUVGR,EPL_NORQ,EPL_ONLIN,EPL_THREE,EPL_TRESID,EPL_UAL,EPL_VISITR"
+DESIREABLE_PROFILES="EPL_NOVIDG,EPL_JNOVG,EPL_ADULT,EPL_JUV,EPL_ADU01,EPL_ADU05,EPL_ADU10,EPL_ADU1FR,EPL_ACCESS,EPL_CONCOR,EPL_CORP,EPL_GMU,EPL_HOME,EPL_JONLIN,EPL_JUV01,EPL_JUV10,EPL_JUV05,EPL_JUVIND,EPL_JUV,EPL_JUVGR,EPL_NORQ,EPL_ONLIN,EPL_THREE,EPL_TRESID,EPL_UAL,EPL_VISITR"
 echo "$DESIREABLE_PROFILES" | pipe.pl -W',' -K >$SU_HOME/good.profiles
 getpol -tUPRF | pipe.pl -oc2 >$SU_HOME/all.profiles
 UNDESIREABLE_PROFILES=$(echo "$SU_HOME/all.profiles not $SU_HOME/good.profiles" | diff.pl -ec0 -fc0 | pipe.pl -h',' -H -P -j)
