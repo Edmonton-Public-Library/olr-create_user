@@ -24,6 +24,7 @@
 # Author:  Andrew Nisbet, Edmonton Public Library
 # Created: Thu Feb 23 16:22:30 MST 2017
 # Rev:
+#          0.5 - Removed preferred name since upgrading to Symphony 4.0.
 #          0.4 - Changed EPL_ADULT to EPL_NOVIDG and EPL_JUV to EPL_JNOVG.
 #          0.3 - Project converted to use python3.
 #          0.2 - Remove USER_CATEGORY2.
@@ -79,6 +80,7 @@ class Customer:
         # .USER_ROUTING_FLAG.   |aY
         # .USER_CATEGORY5.   |aECONSENT
         # .USER_ENVIRONMENT.   |aPUBLIC
+        # NOTE: The preferred name is being dropped since upgrading to Symphony 4.0. May 02, 2024.
         # .USER_PREFERRED_NAME.   |aAXXXXX, GXXX
         # .USER_PREF_LANG.   |aENGLISH
         # .USER_PIN.   |a2913
@@ -122,7 +124,6 @@ FORM=LDUSER
 .USER_ENVIRONMENT.   |aPUBLIC
 .USER_FIRST_NAME.   |a{USER_FIRST_NAME}
 .USER_LAST_NAME.   |a{USER_LAST_NAME}
-.USER_PREFERRED_NAME.   |a{USER_PREFERRED_LAST_NAME}, {USER_PREFERRED_FIRST_NAME}
 .USER_PREF_LANG.   |aENGLISH
 .USER_PIN.   |a{USER_PIN}
 .USER_PROFILE.   |a{USER_PROFILE}
@@ -141,8 +142,6 @@ FORM=LDUSER
             USER_ID=self.json['USER_ID'],
             USER_FIRST_NAME=self.json['USER_FIRST_NAME'],
             USER_LAST_NAME=self.json['USER_LAST_NAME'],
-            USER_PREFERRED_LAST_NAME=self.json['USER_LAST_NAME'].upper(),
-            USER_PREFERRED_FIRST_NAME=self.json['USER_FIRST_NAME'].upper(),
             USER_PIN=self.json['USER_PIN'],
             USER_PROFILE=self.profile,
             USER_PRIV_EXPIRES=self.expire,
