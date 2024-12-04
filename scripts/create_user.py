@@ -24,6 +24,7 @@
 # Author:  Andrew Nisbet, Edmonton Public Library
 # Created: Thu Feb 23 16:22:30 MST 2017
 # Rev:
+#          0.6 - Changed EPL_NOVIDG to EPL_SELF and EPL_JNOVG to EPL_SELFJ.
 #          0.5 - Removed preferred name since upgrading to Symphony 4.0.
 #          0.4 - Changed EPL_ADULT to EPL_NOVIDG and EPL_JUV to EPL_JNOVG.
 #          0.3 - Project converted to use python3.
@@ -106,9 +107,9 @@ class Customer:
         self.today = p_date.strftime("%Y%m%d")
         # Test for user age
         if self.json['USER_AGE'] < 18:
-            self.profile = 'EPL_JNOVG'
+            self.profile = 'EPL_SELFJ'
         else:
-            self.profile = 'EPL_NOVIDG'
+            self.profile = 'EPL_SELF'
     def __repr__(self):
         self.__str__()
     def __str__(self):
